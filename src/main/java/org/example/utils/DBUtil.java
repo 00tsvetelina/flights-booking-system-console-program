@@ -19,7 +19,7 @@ public final class DBUtil {
                 System.exit(0);
             }
         }
-        
+
         return instance;
 
     }

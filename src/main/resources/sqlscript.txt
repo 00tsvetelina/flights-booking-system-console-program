@@ -1,0 +1,59 @@
+CREATE TABLE plane
+(
+   id INT(30) PRIMARY KEY NOT NULL AUTO_INCREMENT,
+   model VARCHAR(10) NOT NULL,
+   seats_count INT NOT NULL
+);
+
+CREATE TABLE flight
+(
+   id INT(30) PRIMARY KEY NOT NULL AUTO_INCREMENT,
+   plane_id INT(30) NOT NULL,
+   destination VARCHAR(20) NOT NULL,
+   origin VARCHAR(20) NOT NULL,
+   departure_time DATE NOT NULL,
+   delay INT,
+   price FLOAT NOT NULL,
+   FOREIGN KEY (plane_id) REFERENCES plane(id)
+);
+
+CREATE TABLE ticket
+(
+   id INT(30) PRIMARY KEY NOT NULL AUTO_INCREMENT,
+   flight_id INT(30) NOT NULL,
+   user_id INT(30) NOT NULL,
+   promo_id INT(30),
+   seat VARCHAR(4) NOT NULL,
+   FOREIGN KEY (flight_id) REFERENCES flight(id),
+   FOREIGN KEY (user_id) REFERENCES user(id),
+   FOREIGN KEY (promo_id) REFERENCES promo(id)
+);
+
+CREATE TABLE user
+(
+   id INT(30) PRIMARY KEY NOT NULL AUTO_INCREMENT,
+   user_name VARCHAR(10) NOT NULL UNIQUE,
+   email VARCHAR(20) NOT NULL UNIQUE,
+   password VARCHAR(30) NOT NULL,
+   is_enabled BOOLEAN NOT NULL,
+   role VARCHAR(10) NOT NULL DEFAULT "user"
+);
+
+CREATE TABLE promo
+(
+   id INT(30) PRIMARY KEY NOT NULL AUTO_INCREMENT,
+   promo_code VARCHAR(10) NOT NULL,
+   percentDiscount INT NOT NULL,
+   duration_end DATE NOT NULL,
+   single_use BOOLEAN NOT NULL DEFAULT true,
+   is_used BOOLEAN NOT NULL DEFAULT false
+);
+
+CREATE TABLE promo_ticket
+(
+    id INT(30) PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    ticket_id INT(30),
+    promo_id INT(30),
+    FOREIGN KEY (ticket_id) REFERENCES user(id),
+    FOREIGN KEY (promo_id) REFERENCES promo(id)
+);
