@@ -8,7 +8,7 @@ public class Plane {
     private String model;
     private Integer seatsCount;
 
-    public Plane(Integer id, String model, List<Flight> flights, Integer seatsCount) {
+    public Plane(Integer id, String model, Integer seatsCount) {
         this.id = id;
         this.model = model;
         this.seatsCount = seatsCount;
