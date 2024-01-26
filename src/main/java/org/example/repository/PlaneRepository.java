@@ -1,6 +1,6 @@
-package org.example.repositories;
+package org.example.repository;
 
-import org.example.models.Plane;
+import org.example.model.Plane;
 import org.example.utils.DBUtil;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -109,7 +109,6 @@ public class PlaneRepository {
             }
 
             if(statement.executeUpdate() > 0) {
-                System.out.println("new plane: " + plane);
                 return plane;
             }
         } catch (SQLException e) {

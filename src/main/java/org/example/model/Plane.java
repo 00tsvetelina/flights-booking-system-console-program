@@ -1,6 +1,4 @@
-package org.example.models;
-
-import java.util.List;
+package org.example.model;
 
 public class Plane {
 

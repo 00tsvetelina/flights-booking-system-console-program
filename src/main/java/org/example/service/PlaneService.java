@@ -1,10 +1,8 @@
 package org.example.service;
 
-import org.example.models.Plane;
-import org.example.repositories.PlaneRepository;
+import org.example.model.Plane;
+import org.example.repository.PlaneRepository;
 
-import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
 
 public class PlaneService {
@@ -40,7 +38,7 @@ public class PlaneService {
             return String.format("Could not find plane with id: %d", id);
         }
 
-        return String.format("Plane with id: %d found!", id);
+        return String.format("Plane with id: %d found - %s", id, plane);
     }
 
     public String createPlane(Plane plane) {
