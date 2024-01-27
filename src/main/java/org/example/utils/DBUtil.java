@@ -7,21 +7,27 @@ import java.sql.SQLException;
 public final class DBUtil {
     private static Connection instance;
 
-    private DBUtil() {}
-
     public static Connection getConnection() {
 
-        if(instance == null){
-            try {
+        try {
+            if(instance == null || instance.isClosed()) {
                 Class.forName("com.mysql.cj.jdbc.Driver");
-                instance = DriverManager.getConnection("jdbc:mysql://localhost:3300/sys", "root", "123456");
-            } catch (ClassNotFoundException | SQLException e) {
-                System.exit(0);
+                instance = DriverManager.getConnection("jdbc:mysql://localhost:3300/sys",
+                        "root", "123456");
             }
+        } catch (ClassNotFoundException | SQLException ex) {
+            System.out.println("Problem with the database connection has occurred" + ex.getMessage());
+            try {
+                instance.close();
+            } catch (SQLException e) {
+                System.out.println("Problem with closing the established connection has occurred" + e.getMessage());;
+            }
+            System.exit(0);
         }
 
         return instance;
-
     }
 
 }
+
+

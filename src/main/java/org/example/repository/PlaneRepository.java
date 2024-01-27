@@ -14,7 +14,6 @@ public class PlaneRepository {
     // get all planes
     public List<Plane> getAllPlanes() {
         try {
-            List<Plane> planes = new ArrayList<>();
             PreparedStatement statement = DBUtil.getConnection().prepareStatement("SELECT * FROM plane");
 
             ResultSet response = statement.executeQuery();
@@ -22,6 +21,7 @@ public class PlaneRepository {
                 return null;
             }
 
+            List<Plane> planes = new ArrayList<>();
             while (response.next()) {
                 Integer id = response.getInt("id");
                 String model = response.getString("model");
@@ -41,7 +41,6 @@ public class PlaneRepository {
     // get plane by id
     public Plane getPlaneById(Integer id) {
         try {
-            Plane plane = null;
             PreparedStatement statement = DBUtil.getConnection().prepareStatement("SELECT * FROM plane WHERE id=?");
 
             statement.setInt(1, id);
@@ -54,9 +53,7 @@ public class PlaneRepository {
                 String model = response.getString("model");
                 Integer seatsCount = response.getInt("seats_count");
 
-                plane = new Plane(id, model, seatsCount);
-//            System.out.println(plane);
-                return plane;
+                return new Plane(id, model, seatsCount);
             }
         } catch (SQLException e) {
             return null;
@@ -125,11 +122,9 @@ public class PlaneRepository {
             PreparedStatement statement = DBUtil.getConnection().prepareStatement("DELETE FROM plane WHERE id=?");
             statement.setInt(1, id);
 
-            int response = statement.executeUpdate();
-            if(response < 0) {
+            if(statement.executeUpdate() < 0) {
                 System.out.printf("Error while deleting plane with id: %d", id);
             }
-
         } catch (SQLException e) {
             System.out.printf("Error occurred while deleting plane with id: %d", id);
         }
