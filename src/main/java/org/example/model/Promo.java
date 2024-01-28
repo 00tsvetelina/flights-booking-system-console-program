@@ -21,6 +21,10 @@ public class Promo {
         this.isUsed = isUsed;
     }
 
+    public Promo(Integer id) {
+        this.id = id;
+    }
+
     public Integer getId() {
         return id;
     }

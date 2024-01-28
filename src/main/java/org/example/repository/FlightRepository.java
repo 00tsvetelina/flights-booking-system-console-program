@@ -19,15 +19,14 @@ public class FlightRepository {
 
     public List<Flight> getAllFlights() {
         try {
-            List<Flight> flights = new ArrayList<>();
             PreparedStatement statement = DBUtil.getConnection().prepareStatement("SELECT * FROM flight");
 
             ResultSet response = statement.executeQuery();
-            if (response == null){
-                System.out.println("no flights ");
+            if (response == null) {
                 return null;
             }
 
+            List<Flight> flights = new ArrayList<>();
             while (response.next()) {
                 Integer id = response.getInt("id");
                 Integer planeId = response.getInt("plane_id");
@@ -49,18 +48,17 @@ public class FlightRepository {
 
     }
 
-    public Flight getFlightById (Integer id) {
+    public Flight getFlightById(Integer id) {
         try {
-            Flight flight;
             PreparedStatement statement = DBUtil.getConnection().prepareStatement("SELECT * FROM flight WHERE id=?");
 
             statement.setInt(1, id);
-            if(statement.executeQuery() == null) {
+            if (statement.executeQuery() == null) {
                 return null;
             }
 
             ResultSet response = statement.executeQuery();
-            if(response.next()) {
+            if (response.next()) {
                 Integer planeId = response.getInt("plane_id");
                 Plane plane = planeRepository.getPlaneById(planeId);
                 String destination = response.getString("destination");
@@ -69,8 +67,7 @@ public class FlightRepository {
                 Integer delay = response.getInt("delay");
                 Float price = response.getFloat("price");
 
-                flight = new Flight(id, plane, destination, origin, departureTime, delay, price);
-                return flight;
+                return new Flight(id, plane, destination, origin, departureTime, delay, price);
             }
         } catch (SQLException ex) {
             return null;
@@ -79,7 +76,7 @@ public class FlightRepository {
         return null;
     }
 
-    public Flight createFlight(Flight flight, Integer planeId) {
+    public Flight createFlight(Flight flight) {
         try {
             PreparedStatement statement = DBUtil.getConnection().prepareStatement(
                     "INSERT INTO flight(plane_id, destination, origin, departure_time, delay, price) " +
@@ -87,7 +84,7 @@ public class FlightRepository {
                     Statement.RETURN_GENERATED_KEYS
             );
 
-            statement.setInt(1, planeId);
+            statement.setInt(1, flight.getPlane().getId());
             statement.setString(2, flight.getDestination());
             statement.setString(3, flight.getOrigin());
             statement.setDate(4, Date.valueOf(flight.getDepartureTime()));
@@ -167,6 +164,5 @@ public class FlightRepository {
         } catch (SQLException ex) {
             System.out.printf("Error occurred while deleting flight with plane id: %d", id);
         }
-
     }
 }

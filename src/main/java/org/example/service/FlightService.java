@@ -49,7 +49,7 @@ public class FlightService {
             return validationError;
         }
 
-        Flight createdFlight = flightRepository.createFlight(flight, flight.getPlane().getId());
+        Flight createdFlight = flightRepository.createFlight(flight);
         if (createdFlight.getPrice() == 0) {
             return "Price should be a valid positive number";
         }

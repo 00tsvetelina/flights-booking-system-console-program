@@ -4,11 +4,11 @@ public class Ticket {
 
     private Integer id;
     private Flight flight;
-    private String seat;
+    private Integer seat;
     private User user;
     private Promo promo;
 
-    public Ticket(Integer id, Flight flight, String seat, User user, Promo promo) {
+    public Ticket(Integer id, Flight flight, Integer seat, User user, Promo promo) {
         this.id = id;
         this.flight = flight;
         this.seat = seat;
@@ -32,11 +32,11 @@ public class Ticket {
         this.flight = flight;
     }
 
-    public String getSeat() {
+    public Integer getSeat() {
         return seat;
     }
 
-    public void setSeat(String seat) {
+    public void setSeat(Integer seat) {
         this.seat = seat;
     }
 
