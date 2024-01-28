@@ -1,9 +1,11 @@
 package org.example;
 
 
+import org.example.dashboard.FlightDashboard;
 import org.example.dashboard.PlaneDashboard;
 import org.example.repository.FlightRepository;
 import org.example.repository.PlaneRepository;
+import org.example.service.FlightService;
 import org.example.service.PlaneService;
 import org.example.utils.DBUtil;
 
@@ -16,10 +18,13 @@ public class Main {
         PlaneRepository planeRepository = new PlaneRepository();
         FlightRepository flightRepository = new FlightRepository(planeRepository);
 
+        FlightService flightService = new FlightService(flightRepository);
         PlaneService planeService = new PlaneService(planeRepository, flightRepository);
-        PlaneDashboard planeDashboard = new PlaneDashboard(planeService);
 
-        planeDashboard.printPlaneMenu();
+        PlaneDashboard planeDashboard = new PlaneDashboard(planeService);
+        FlightDashboard flightDashboard = new FlightDashboard(flightService);
+//        planeDashboard.printPlaneMenu();
+        flightDashboard.printFlightMenu();
 
         try {
             DBUtil.getConnection().close();

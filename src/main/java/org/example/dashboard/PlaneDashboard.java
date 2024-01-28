@@ -7,7 +7,7 @@ import java.util.Scanner;
 
 public class PlaneDashboard {
 
-    PlaneService planeService;
+    private final PlaneService planeService;
 
     public PlaneDashboard(PlaneService planeService) {
         this.planeService = planeService;
@@ -40,25 +40,25 @@ public class PlaneDashboard {
                     System.out.println("Please Enter Plane Seats Count");
                     int choiceSeatsCount = scannerInt.nextInt();
 
-                    Plane planeCreate = new Plane(null, choiceModel, choiceSeatsCount);
-                    String responseCreate = planeService.createPlane(planeCreate);
-                    System.out.println(responseCreate);
+                    Plane createdPlane = new Plane(null, choiceModel, choiceSeatsCount);
+                    String responseCreated = planeService.createPlane(createdPlane);
+                    System.out.println(responseCreated);
 
                     break;
 
                 case 2:
                     System.out.println("Edit a Plane:");
-                    System.out.println("Please Enter Plane Id");
+                    System.out.println("Please Enter Existing Plane Id");
                     int choiceIdEdit = scannerInt.nextInt();
 
-                    System.out.println("Please Enter Plane Model");
+                    System.out.println("Please Enter New Plane Model");
                     String choiceModelEdit = scannerString.nextLine();
 
-                    System.out.println("Please Enter Plane Seats Count");
+                    System.out.println("Please Enter New Plane Seats Count");
                     int choiceSeatsCountEdit = scannerString.nextInt();
 
-                    Plane planeEdit = new Plane(choiceIdEdit, choiceModelEdit, choiceSeatsCountEdit);
-                    String responseEdit = planeService.updatePlane(planeEdit);
+                    Plane editedPlane = new Plane(choiceIdEdit, choiceModelEdit, choiceSeatsCountEdit);
+                    String responseEdit = planeService.updatePlane(editedPlane);
                     System.out.println(responseEdit);
 
                     break;
@@ -81,7 +81,7 @@ public class PlaneDashboard {
                     break;
 
                 case 5:
-                    System.out.println("View a Plane by Id: \n");
+                    System.out.println("View a Plane by Id:");
                     System.out.println("Please Enter Plane Id");
                     int choiceIdFind = scannerInt.nextInt();
 

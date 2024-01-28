@@ -22,7 +22,7 @@ public class FlightService {
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append("Here are all available planes: \n");
+        sb.append("Here are all available flights: \n");
         for (Flight flight: flights) {
             sb.append(flight.toString()).append("\n");
         }
