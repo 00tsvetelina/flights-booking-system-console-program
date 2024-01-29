@@ -1,6 +1,7 @@
 package org.example.service;
 
 import org.example.model.Flight;
+import org.example.model.Promo;
 import org.example.repository.FlightRepository;
 import org.example.repository.TicketRepository;
 import org.example.utils.DBUtil;
@@ -55,8 +56,7 @@ public class FlightService {
             return validationError;
         }
 
-       flightRepository.createFlight(flight);
-
+        flightRepository.createFlight(flight);
 
         return "Flight created successfully";
     }
@@ -124,6 +124,21 @@ public class FlightService {
         }
 
         return null;
+    }
+
+    public Flight calculateFlightDiscountPrice(Integer flightId, Promo promo) {
+        Flight flight = flightRepository.getFlightById(flightId);
+        Float flightPrice = flight.getPrice();
+
+        Float discount = promo.getPercentDiscount().floatValue();
+        Float newPrice = flightPrice - flightPrice*discount/100;
+
+        flightRepository.updateFlight(new Flight(flightId, flight.getPlane(), flight.getDestination(),
+                flight.getOrigin(), flight.getDepartureTime(), flight.getDelay(), newPrice));
+
+
+        System.out.println("Discount added, new price: $" + newPrice);
+        return flight;
     }
 
 }

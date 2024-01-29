@@ -64,7 +64,13 @@ public class Ticket {
                 ", destination: " + flight.getDestination() +
                 ", departure date: " + flight.getDepartureTime() +
                 ", seat: " + seat + '\'' +
+                ", price: " + calculatePrice() +
                 '}';
     }
 
+    private float calculatePrice() {
+        Float flightPrice = flight.getPrice();
+        Float discount = promo.getPercentDiscount().floatValue();
+        return flightPrice - flightPrice*discount/100;
+    }
 }

@@ -5,6 +5,7 @@ import org.example.model.Promo;
 import org.example.model.Ticket;
 import org.example.model.User;
 import org.example.service.FlightService;
+import org.example.service.PromoService;
 import org.example.service.TicketService;
 
 import java.util.Objects;
@@ -14,10 +15,12 @@ public class TicketDashboard {
 
     private final TicketService ticketService;
     private final FlightService flightService;
+    private final PromoService promoService;
 
-    public TicketDashboard(TicketService ticketService, FlightService flightService) {
+    public TicketDashboard(TicketService ticketService, FlightService flightService, PromoService promoService) {
         this.ticketService = ticketService;
         this.flightService = flightService;
+        this.promoService = promoService;
     }
 
     public void printTicketMenu(Integer userId) {
@@ -49,12 +52,19 @@ public class TicketDashboard {
 
                     Promo promo = null;
                     if (!Objects.equals(promoCode, "0")) {
-                        promo = new Promo(0);
+                        promo = promoService.getPromoByPromoCode(promoCode);
+                        if (!promo.getUsed() || !promo.getSingleUse()) {
+                            promoService.setUsedToTrue(promo);
+                        } else {
+                            System.out.println("Promo Code not valid.");
+                            promo = null;
+                        }
                     }
 
                     Integer seatNumber = ticketService.getAvailableSeatNumber(flightId);
                     Ticket ticket = new Ticket(null, new Flight(flightId), seatNumber, new User(userId), promo);
                     String responseCreate = ticketService.createTicket(ticket);
+
                     System.out.println(responseCreate);
 
                     break;

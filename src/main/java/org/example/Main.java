@@ -7,6 +7,7 @@ import org.example.dashboard.TicketDashboard;
 import org.example.repository.*;
 import org.example.service.FlightService;
 import org.example.service.PlaneService;
+import org.example.service.PromoService;
 import org.example.service.TicketService;
 import org.example.utils.DBUtil;
 
@@ -25,15 +26,19 @@ public class Main {
         FlightService flightService = new FlightService(flightRepository, ticketRepository);
         PlaneService planeService = new PlaneService(planeRepository, flightRepository);
         TicketService ticketService = new TicketService(ticketRepository, userRepository);
+        PromoService promoService = new PromoService(promoRepository);
 
         PlaneDashboard planeDashboard = new PlaneDashboard(planeService);
         FlightDashboard flightDashboard = new FlightDashboard(flightService);
-        TicketDashboard ticketDashboard = new TicketDashboard(ticketService, flightService);
+        TicketDashboard ticketDashboard = new TicketDashboard(ticketService, flightService, promoService);
 
 //        planeDashboard.printPlaneMenu();
 //        flightDashboard.printFlightMenu();
         ticketDashboard.printTicketMenu(1);
 
+//        promoRepository.createPromo(new Promo(null, "PROMO", 10,
+//                LocalDate.of(2024, 3, 1), true, false));
+//        System.out.println(promoRepository.getPromoByPromoCode("PROMO"));
 
         try {
             DBUtil.getConnection().close();
