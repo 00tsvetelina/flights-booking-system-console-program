@@ -45,12 +45,13 @@ public class FlightRepository {
         } catch (SQLException e) {
             return null;
         }
-
     }
 
     public Flight getFlightById(Integer id) {
         try {
-            PreparedStatement statement = DBUtil.getConnection().prepareStatement("SELECT * FROM flight WHERE id=?");
+            PreparedStatement statement = DBUtil.getConnection().prepareStatement(
+                    "SELECT * FROM flight WHERE id=?"
+            );
 
             statement.setInt(1, id);
             if (statement.executeQuery() == null) {
@@ -155,7 +156,9 @@ public class FlightRepository {
     public void deleteFlightsByPlaneId(Integer id) {
 
         try {
-            PreparedStatement statement = DBUtil.getConnection().prepareStatement("DELETE FROM flight WHERE plane_id=?");
+            PreparedStatement statement = DBUtil.getConnection().prepareStatement(
+                    "DELETE FROM flight WHERE plane_id=?"
+            );
             statement.setInt(1, id);
 
             if (statement.executeUpdate() < 0) {

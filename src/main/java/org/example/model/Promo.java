@@ -75,13 +75,13 @@ public class Promo {
 
     @Override
     public String toString() {
-        return "Promo{" +
-                "id=" + id +
-                ", promoCode='" + promoCode + '\'' +
-                ", percentDiscount=" + percentDiscount +
-                ", durationEnd=" + durationEnd +
-                ", singleUse=" + singleUse +
-                ", isUsed=" + isUsed +
+        return "Promo {" +
+                "id: " + id +
+                ", code: " + promoCode + '\'' +
+                ", discount: " + percentDiscount + "% " +
+                ", duration end: " + durationEnd +
+                ", single use: " + singleUse +
+                ", used status: " + isUsed +
                 '}';
     }
 

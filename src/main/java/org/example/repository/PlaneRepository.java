@@ -11,7 +11,6 @@ import java.util.List;
 
 public class PlaneRepository {
 
-    // get all planes
     public List<Plane> getAllPlanes() {
         try {
             PreparedStatement statement = DBUtil.getConnection().prepareStatement("SELECT * FROM plane");
@@ -35,10 +34,8 @@ public class PlaneRepository {
         } catch (SQLException e) {
             return null;
         }
-
     }
 
-    // get plane by id
     public Plane getPlaneById(Integer id) {
         try {
             PreparedStatement statement = DBUtil.getConnection().prepareStatement("SELECT * FROM plane WHERE id=?");
@@ -62,8 +59,6 @@ public class PlaneRepository {
         return null;
     }
 
-
-    // save plane
     public Plane createPlane(Plane plane) {
         try {
             PreparedStatement statement = DBUtil.getConnection().prepareStatement(
@@ -91,8 +86,6 @@ public class PlaneRepository {
         return null;
     }
 
-
-    // edit plane
     public Plane updatePlane(Plane plane) {
         try {
             PreparedStatement statement = DBUtil.getConnection().prepareStatement(
@@ -115,8 +108,6 @@ public class PlaneRepository {
         return null;
     }
 
-
-    // delete plane
     public void deletePlane(Integer id) {
         try {
             PreparedStatement statement = DBUtil.getConnection().prepareStatement("DELETE FROM plane WHERE id=?");

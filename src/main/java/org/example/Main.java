@@ -3,11 +3,11 @@ package org.example;
 
 import org.example.dashboard.FlightDashboard;
 import org.example.dashboard.PlaneDashboard;
-import org.example.model.Ticket;
-import org.example.model.User;
+import org.example.dashboard.TicketDashboard;
 import org.example.repository.*;
 import org.example.service.FlightService;
 import org.example.service.PlaneService;
+import org.example.service.TicketService;
 import org.example.utils.DBUtil;
 
 import java.sql.SQLException;
@@ -22,16 +22,18 @@ public class Main {
         PromoRepository promoRepository = new PromoRepository();
         TicketRepository ticketRepository = new TicketRepository(flightRepository, userRepository, promoRepository);
 
-        FlightService flightService = new FlightService(flightRepository);
+        FlightService flightService = new FlightService(flightRepository, ticketRepository);
         PlaneService planeService = new PlaneService(planeRepository, flightRepository);
+        TicketService ticketService = new TicketService(ticketRepository, userRepository);
 
         PlaneDashboard planeDashboard = new PlaneDashboard(planeService);
         FlightDashboard flightDashboard = new FlightDashboard(flightService);
+        TicketDashboard ticketDashboard = new TicketDashboard(ticketService, flightService);
 
 //        planeDashboard.printPlaneMenu();
 //        flightDashboard.printFlightMenu();
-//        ticketRepository.getAllTickets();
-        ticketRepository.createTicket(new Ticket(null, flightRepository.getFlightById(3),123 ,new User(1), null));
+        ticketDashboard.printTicketMenu(1);
+
 
         try {
             DBUtil.getConnection().close();

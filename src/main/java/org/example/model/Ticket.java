@@ -58,12 +58,12 @@ public class Ticket {
 
     @Override
     public String toString() {
-        return "Ticket{" +
-                "id=" + id +
-                ", flight=" + flight +
-                ", seat='" + seat + '\'' +
-                ", user=" + user +
-                ", promo=" + promo +
+        return "Ticket {" +
+                "id: " + id +
+                ", origin: " + flight.getOrigin() +
+                ", destination: " + flight.getDestination() +
+                ", departure date: " + flight.getDepartureTime() +
+                ", seat: " + seat + '\'' +
                 '}';
     }
 

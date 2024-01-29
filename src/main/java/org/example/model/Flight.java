@@ -22,6 +22,10 @@ public class Flight {
         this.price = price;
     }
 
+    public Flight(Integer id) {
+        this.id = id;
+    }
+
     public Integer getId() {
         return id;
     }
@@ -80,14 +84,14 @@ public class Flight {
 
     @Override
     public String toString() {
-        return "Flight{" +
-                "id=" + id +
-                ", plane=" + plane +
-                ", destination='" + destination + '\'' +
-                ", origin='" + origin + '\'' +
-                ", departureTime=" + departureTime +
-                ", delay=" + delay +
-                ", price=" + price +
+        return "Flight {" +
+                "id: " + id +
+                ", plane: " + plane +
+                ", destination: " + destination + '\'' +
+                ", origin: " + origin + '\'' +
+                ", departure date: " + departureTime +
+                ", delay: " + delay + " mins " +
+                ", price: $" + price +
                 '}';
     }
 

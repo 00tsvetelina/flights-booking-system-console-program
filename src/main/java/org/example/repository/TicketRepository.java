@@ -51,6 +51,73 @@ public class TicketRepository {
         } catch (SQLException ex) {
             return null;
         }
+
+    }
+
+    public List<Ticket> getTicketByUserId(Integer userId) {
+        try {
+            PreparedStatement statement = DBUtil.getConnection().prepareStatement(
+                    "SELECT * FROM ticket WHERE user_id=?"
+            );
+
+            statement.setInt(1, userId);
+            if (statement.executeQuery() == null) {
+                return null;
+            }
+
+            ResultSet response = statement.executeQuery();
+            List<Ticket> tickets = new ArrayList<>();
+            while (response.next()){
+                Integer ticketId = response.getInt("id");
+                Integer flightId = response.getInt("flight_id");
+                Flight flight = flightRepository.getFlightById(flightId);
+                Integer seat = response.getInt("seat");
+                User user = userRepository.getUserById(userId);
+                Integer promoId = response.getInt("promo_id");
+                Promo promo = promoRepository.getPromoById(promoId);
+
+                Ticket ticket = new Ticket(ticketId, flight, seat, user, promo);
+                tickets.add(ticket);
+            }
+
+            return tickets;
+        } catch (SQLException ex) {
+            return null;
+        }
+
+    }
+
+    public Ticket getTicketById(Integer id) {
+        try {
+            PreparedStatement statement = DBUtil.getConnection().prepareStatement(
+                    "SELECT * FROM ticket WHERE id=?"
+            );
+
+            statement.setInt(1,id);
+            if (statement.executeQuery() == null) {
+                return null;
+            }
+
+            ResultSet response = statement.executeQuery();
+            if (response.next()) {
+                Integer flightId = response.getInt("flight_id");
+                Flight flight = flightRepository.getFlightById(flightId);
+                Integer userId = response.getInt("user_id");
+                User user = userRepository.getUserById(userId);
+                Integer seat = response.getInt("seat");
+                Integer promoId = response.getInt("promo_id");
+                Promo promo = null;
+                if (promoId != 0) {
+                    promo = promoRepository.getPromoById(promoId);
+                }
+
+                return new Ticket(id, flight, seat, user, promo);
+            }
+        } catch (SQLException ex) {
+            return null;
+        }
+
+        return null;
     }
 
     public Ticket createTicket(Ticket ticket) {
@@ -82,7 +149,6 @@ public class TicketRepository {
 
                 return ticket;
             }
-
         } catch (SQLException ex) {
             return null;
         }
@@ -90,7 +156,7 @@ public class TicketRepository {
         return null;
     }
 
-     public int getAvailableSeats(Integer flightId) {
+     public int getAvailableSeatNumber(Integer flightId) {
          Integer seatsCount = flightRepository.getFlightById(flightId).getPlane().getSeatsCount();
 
          List<Ticket> tickets = getAllTickets();
@@ -107,6 +173,35 @@ public class TicketRepository {
                  break;
              }
          }
+
          return availableSeat;
+     }
+
+     public void deleteTicket(Integer id) {
+        try {
+            PreparedStatement statement = DBUtil.getConnection().prepareStatement("DELETE FROM ticket WHERE id=?");
+            statement.setInt(1, id);
+
+            if (statement.executeUpdate() < 0) {
+                System.out.printf("Error while deleting ticket with id: %d", id);
+            }
+        } catch (SQLException ex) {
+            System.out.printf("Error occurred while deleting ticket with id: %d", id);
+        }
+     }
+
+     public void deleteTicketByFlightId(Integer id) {
+        try {
+            PreparedStatement statement = DBUtil.getConnection().prepareStatement(
+                    "DELETE FROM ticket WHERE flight_id=?"
+            );
+            statement.setInt(1, id);
+
+            if (statement.executeUpdate() < 0) {
+                System.out.printf("Error while deleting ticket with flight id: %d", id);
+            }
+        } catch (SQLException ex) {
+            System.out.printf("Error occurred while deleting ticket with flight id: %d", id);
+        }
      }
 }

@@ -56,8 +56,8 @@ public class FlightDashboard {
                     Float choicePrice = scannerFloat.nextFloat();
 
                     LocalDate departureTime = LocalDate.parse(choiceDepartureTime);
-                    Flight createdFlight = new Flight(null, new Plane(choicePlaneId), choiceDestination, choiceOrigin,
-                            departureTime, choiceDelay, choicePrice);
+                    Flight createdFlight = new Flight(null, new Plane(choicePlaneId), choiceDestination,
+                            choiceOrigin, departureTime, choiceDelay, choicePrice);
                     String responseCreated = flightService.createFlight(createdFlight);
                     System.out.println(responseCreated);
 
@@ -123,9 +123,11 @@ public class FlightDashboard {
 
                 case 6:
                     System.out.println("Exiting Flight Dashboard...");
+
                     scannerInt.close();
                     scannerString.close();
                     run = false;
+
                     break;
             }
         }

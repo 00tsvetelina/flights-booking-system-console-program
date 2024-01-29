@@ -92,9 +92,11 @@ public class PlaneDashboard {
 
                 case 6:
                     System.out.println("Exiting Plane Dashboard...");
+
                     scannerInt.close();
                     scannerString.close();
                     run = false;
+
                     break;
             }
         }

@@ -42,10 +42,8 @@ public class Plane {
 
     @Override
     public String toString() {
-        return "Plane{" +
-                "id=" + id +
-                ", model='" + model + '\'' +
-                ", seatsCount=" + seatsCount +
+        return "Plane {" +
+                "model: " + model + '\'' +
                 '}';
     }
 

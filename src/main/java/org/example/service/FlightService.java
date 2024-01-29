@@ -2,17 +2,23 @@ package org.example.service;
 
 import org.example.model.Flight;
 import org.example.repository.FlightRepository;
+import org.example.repository.TicketRepository;
+import org.example.utils.DBUtil;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
 public class FlightService {
 
     private final FlightRepository flightRepository;
+    private final TicketRepository ticketRepository;
 
 
-    public FlightService(FlightRepository flightRepository) {
+    public FlightService(FlightRepository flightRepository, TicketRepository ticketRepository) {
         this.flightRepository = flightRepository;
+        this.ticketRepository = ticketRepository;
     }
 
     public String getAllFlights() {
@@ -49,10 +55,8 @@ public class FlightService {
             return validationError;
         }
 
-        Flight createdFlight = flightRepository.createFlight(flight);
-        if (createdFlight.getPrice() == 0) {
-            return "Price should be a valid positive number";
-        }
+       flightRepository.createFlight(flight);
+
 
         return "Flight created successfully";
     }
@@ -67,34 +71,43 @@ public class FlightService {
             return validationError;
         }
 
-        Flight updatedFlight = flightRepository.updateFlight(flight);
-        if (updatedFlight.getPrice() == 0) {
-            return "Price should be a valid positive number";
-        }
+        flightRepository.updateFlight(flight);
 
         return "Flight updated successfully";
     }
 
     public String deleteFlight(Integer id) {
-        if(id <= 0) {
-            return "Invalid id, please enter a positive number";
+        try {
+            if (id <= 0) {
+                return "Invalid id, please enter a positive number";
+            }
+
+            if (flightRepository.getFlightById(id) == null) {
+                return String.format("Cannot find flight with id: %d", id);
+            }
+
+            Connection con = DBUtil.getConnection();
+            con.setAutoCommit(false);
+
+            ticketRepository.deleteTicketByFlightId(id);
+            flightRepository.deleteFlight(id);
+
+            con.commit();
+
+            return String.format("Flight with id: %d successfully deleted!", id);
+        } catch (SQLException ex) {
+            return String.format("Error while trying to delete flight with id: %d", id);
         }
 
-        if(flightRepository.getFlightById(id) == null) {
-            return String.format("Cannot find flight with id: %d", id);
-        }
-
-        flightRepository.deleteFlight(id);
-        return String.format("Flight with id: %d successfully deleted!", id);
     }
 
     private String validateFlight(Flight flight) {
-
         if (flight.getPlane().getId() <= 0 || flight.getPlane() == null) {
             return "Invalid plane id, please enter a valid one";
         }
 
-        if (flight.getDestination().isBlank() || flight.getDestination().isEmpty() || flight.getDestination().length() > 20) {
+        if (flight.getDestination().isBlank() || flight.getDestination().isEmpty()
+                || flight.getDestination().length() > 20) {
             return "Destination should not be blank or exceed 20 characters";
         }
 
@@ -104,6 +117,10 @@ public class FlightService {
 
         if (flight.getDepartureTime().isBefore(LocalDate.now()) || flight.getDepartureTime() == null) {
             return "Invalid departure date, please enter a valid future date";
+        }
+
+        if (flight.getPrice() == 0) {
+            return "Price should be a valid positive number";
         }
 
         return null;
