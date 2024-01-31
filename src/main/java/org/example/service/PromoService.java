@@ -48,12 +48,6 @@ public class PromoService {
     }
 
 
-    public void setUsedToTrue(Promo promo){
-        promoRepository.updatePromo(new Promo(promo.getId(), promo.getPromoCode(), promo.getPercentDiscount(),
-                promo.getDurationEnd(), promo.getSingleUse(), true));
-
-    }
-
 
     public Promo getPromoByPromoCode(String promoCode) {
         return promoRepository.getPromoByPromoCode(promoCode);

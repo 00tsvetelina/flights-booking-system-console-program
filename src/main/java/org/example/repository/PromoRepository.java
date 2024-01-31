@@ -63,11 +63,42 @@ public class PromoRepository {
         return null;
     }
 
+    public List<Promo> getPromosByTicketId(Integer ticketId) {
+        try (PreparedStatement statement = DBUtil.getConnection().prepareStatement(
+                "SELECT * FROM ticket" +
+                        " JOIN promo_ticket ON ticket.id=promo_ticket.ticket_id " +
+                        "JOIN promo ON promo_ticket.promo_id=promo.id " +
+                        "WHERE ticket.id=?"
+        )){
+            statement.setInt(1, ticketId);
+            if (statement.executeQuery() == null) {
+                return null;
+            }
+
+            ResultSet response = statement.executeQuery();
+            List<Promo> promos = new ArrayList<>();
+            while(response.next()) {
+                Integer id = response.getInt("id");
+                String promoCode = response.getString("promo_code");
+                Integer percentDiscount = response.getInt("percent_discount");
+                LocalDate durationEnd = response.getDate("duration_end").toLocalDate();
+                Boolean singleUse = response.getBoolean("single_use");
+                Boolean isUsed = response.getBoolean("is_used");
+
+                Promo promo = new Promo(id, promoCode, percentDiscount, durationEnd, singleUse, isUsed);
+                promos.add(promo);
+            }
+            return promos;
+
+        } catch (SQLException ex) {
+            return null;
+        }
+    }
+
     public Promo getPromoByPromoCode(String promoCode) {
-        try {
-            PreparedStatement statement = DBUtil.getConnection().prepareStatement(
-                    "SELECT * FROM promo WHERE promo_code=?"
-            );
+        try(PreparedStatement statement = DBUtil.getConnection().prepareStatement(
+                "SELECT * FROM promo WHERE promo_code=?"
+        )) {
 
             statement.setString(1, promoCode);
             if (statement.executeQuery() == null) {

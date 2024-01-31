@@ -1,20 +1,28 @@
 package org.example.service;
 
+import org.example.model.Promo;
 import org.example.model.Ticket;
 import org.example.model.User;
+import org.example.repository.PromoRepository;
 import org.example.repository.TicketRepository;
 import org.example.repository.UserRepository;
+import org.example.utils.DBUtil;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 public class TicketService {
 
     private final TicketRepository ticketRepository;
     private final UserRepository userRepository;
+    private final PromoRepository promoRepository;
 
-    public TicketService(TicketRepository ticketRepository, UserRepository userRepository) {
+    public TicketService(TicketRepository ticketRepository, UserRepository userRepository,
+                         PromoRepository promoRepository) {
         this.ticketRepository = ticketRepository;
         this.userRepository = userRepository;
+        this.promoRepository = promoRepository;
     }
 
     public String getAllTickets() {
@@ -70,13 +78,31 @@ public class TicketService {
     }
 
     public String createTicket(Ticket ticket) {
-        String validationError = validateTicket(ticket);
-        if (validationError != null) {
-            return validationError;
+        try {
+            String validationError = validateTicket(ticket);
+            if (validationError != null) {
+                return validationError;
+            }
+
+            Connection con = DBUtil.getConnection();
+            con.setAutoCommit(false);
+
+            ticket = ticketRepository.createTicket(ticket);
+            ticketRepository.createTicketPromoRelations(ticket);
+
+
+            for (Promo promo: ticket.getPromos()) {
+                promo.setUsed(true);
+                promoRepository.updatePromo(promo);
+            }
+
+            con.commit();
+
+            return  "Ticket created successfully";
+        } catch (SQLException ex) {
+            return "Error while trying to create ticket";
         }
 
-        ticketRepository.createTicket(ticket);
-        return  "Ticket created successfully";
     }
 
     public String deleteTicket(Integer id) {
@@ -103,6 +129,12 @@ public class TicketService {
 
         if (ticket.getSeat() == 0) {
             return "No available tickets for the selected flight";
+        }
+
+        for (Promo promo: ticket.getPromos()) {
+            if (promo.getUsed() && promo.getSingleUse()) {
+                return "Promo is already used";// TODO format promocode
+            }
         }
 
         return null;

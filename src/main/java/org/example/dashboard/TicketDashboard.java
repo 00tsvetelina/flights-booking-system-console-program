@@ -8,7 +8,9 @@ import org.example.service.FlightService;
 import org.example.service.PromoService;
 import org.example.service.TicketService;
 
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 public class TicketDashboard {
@@ -47,22 +49,20 @@ public class TicketDashboard {
                             "you would like to book a ticket for");
                     int flightId = scannerInt.nextInt();
 
-                    System.out.println("Please enter a promo code (if none available, please enter 0)");
-                    String promoCode = scannerString.nextLine();
+                    System.out.println("Please enter your promo codes, separated by commas");
+                    System.out.println("If none, please enter 0");
+                    String promoCodes = scannerString.nextLine();
 
-                    Promo promo = null;
-                    if (!Objects.equals(promoCode, "0")) {
-                        promo = promoService.getPromoByPromoCode(promoCode);
-                        if (!promo.getUsed() || !promo.getSingleUse()) {
-                            promoService.setUsedToTrue(promo);
-                        } else {
-                            System.out.println("Promo Code not valid.");
-                            promo = null;
-                        }
+                    List<String> codes = Arrays.stream(promoCodes.split(", ")).toList();
+
+                    List<Promo> promos = new ArrayList<>();
+                    for (String code: codes) {
+                        Promo promo = promoService.getPromoByPromoCode(code);
+                        promos.add(promo);
                     }
 
                     Integer seatNumber = ticketService.getAvailableSeatNumber(flightId);
-                    Ticket ticket = new Ticket(null, new Flight(flightId), seatNumber, new User(userId), promo);
+                    Ticket ticket = new Ticket(null, new Flight(flightId), seatNumber, new User(userId), promos);
                     String responseCreate = ticketService.createTicket(ticket);
 
                     System.out.println(responseCreate);

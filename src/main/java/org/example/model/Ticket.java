@@ -1,20 +1,23 @@
 package org.example.model;
 
+import java.util.List;
+
 public class Ticket {
 
     private Integer id;
     private Flight flight;
     private Integer seat;
     private User user;
-    private Promo promo;
+    private List<Promo> promos;
 
-    public Ticket(Integer id, Flight flight, Integer seat, User user, Promo promo) {
+    public Ticket(Integer id, Flight flight, Integer seat, User user, List<Promo> promos) {
         this.id = id;
         this.flight = flight;
         this.seat = seat;
         this.user = user;
-        this.promo = promo;
+        this.promos = promos;
     }
+
 
     public Integer getId() {
         return id;
@@ -48,18 +51,18 @@ public class Ticket {
         this.user = user;
     }
 
-    public Promo getPromo() {
-        return promo;
+    public List<Promo> getPromos() {
+        return promos;
     }
 
-    public void setPromo(Promo promo) {
-        this.promo = promo;
+    public void setPromo(List<Promo> promo) {
+        this.promos = promos;
     }
 
     @Override
     public String toString() {
         return "Ticket {" +
-                "id: " + id +
+                "id: " + id == null ? "" : id +
                 ", origin: " + flight.getOrigin() +
                 ", destination: " + flight.getDestination() +
                 ", departure date: " + flight.getDepartureTime() +
@@ -70,7 +73,13 @@ public class Ticket {
 
     private float calculatePrice() {
         Float flightPrice = flight.getPrice();
-        Float discount = promo.getPercentDiscount().floatValue();
-        return flightPrice - flightPrice*discount/100;
+        float newPrice;
+        float discount = 0f;
+
+        for (Promo promo: promos) {
+            discount = promo.getPercentDiscount().floatValue();
+        }
+        newPrice =  flightPrice - flightPrice*discount/100;
+        return newPrice;
     }
 }

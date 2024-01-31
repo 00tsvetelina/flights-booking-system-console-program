@@ -25,7 +25,7 @@ public class Main {
 
         FlightService flightService = new FlightService(flightRepository, ticketRepository);
         PlaneService planeService = new PlaneService(planeRepository, flightRepository);
-        TicketService ticketService = new TicketService(ticketRepository, userRepository);
+        TicketService ticketService = new TicketService(ticketRepository, userRepository, promoRepository);
         PromoService promoService = new PromoService(promoRepository);
 
         PlaneDashboard planeDashboard = new PlaneDashboard(planeService);
@@ -36,9 +36,9 @@ public class Main {
 //        flightDashboard.printFlightMenu();
         ticketDashboard.printTicketMenu(1);
 
-//        promoRepository.createPromo(new Promo(null, "PROMO", 10,
-//                LocalDate.of(2024, 3, 1), true, false));
-//        System.out.println(promoRepository.getPromoByPromoCode("PROMO"));
+//        promoRepository.createPromo(new Promo(null, "20", 10,
+//                LocalDate.of(2024, 3, 1), false, false));
+////        System.out.println(promoRepository.getPromoByPromoCode("PROMO"));
 
         try {
             DBUtil.getConnection().close();

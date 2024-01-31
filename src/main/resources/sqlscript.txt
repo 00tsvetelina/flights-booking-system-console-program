@@ -54,6 +54,6 @@ CREATE TABLE promo_ticket
     id INT(30) PRIMARY KEY NOT NULL AUTO_INCREMENT,
     ticket_id INT(30),
     promo_id INT(30),
-    FOREIGN KEY (ticket_id) REFERENCES user(id),
+    FOREIGN KEY (ticket_id) REFERENCES ticket(id),
     FOREIGN KEY (promo_id) REFERENCES promo(id)
 );
