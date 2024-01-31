@@ -2,8 +2,12 @@ package org.example.service;
 
 import org.example.model.Promo;
 import org.example.repository.PromoRepository;
+import org.example.utils.DBUtil;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.List;
 
 public class PromoService {
 
@@ -11,6 +15,44 @@ public class PromoService {
 
     public PromoService(PromoRepository promoRepository) {
         this.promoRepository = promoRepository;
+    }
+
+    public String getAllPromos() {
+        List<Promo> promos = promoRepository.getAllPromos();
+        if (promos.isEmpty()) {
+            return "No promos found, sorry!";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Here is a list of all promos: \n");
+        for (Promo promo : promos) {
+            sb.append(promo.toString()).append("\n");
+        }
+
+        return sb.toString();
+    }
+
+    public String getPromoById(Integer id) {
+        if (id <= 0) {
+            return "Invalid id, please enter a positive number";
+        }
+
+        Promo promo = promoRepository.getPromoById(id);
+        if (promo == null) {
+            return String.format("Could not find promo with id: %d", id);
+        }
+
+        return String.format("Promo with id: %d found - %s", id, promo);
+    }
+
+    public String createPromo(Promo promo) {
+        String validationError = validatePromo(promo);
+        if (validationError != null) {
+            return validationError;
+        }
+
+        promoRepository.createPromo(promo);
+        return  "Promo created successfully";
     }
 
     public String updatePromo(Promo promo) {
@@ -24,7 +66,30 @@ public class PromoService {
         }
 
         promoRepository.updatePromo(promo);
-        return null;
+        return "Promo updated successfully";
+    }
+
+    public String deletePromo(Integer id) {
+        try {
+            if (id <= 0) {
+                return "Invalid id, please enter a positive number";
+            }
+
+            if (promoRepository.getPromosByTicketId(id) == null) {
+                return String.format("Cannot find promo with id: %d", id);
+            }
+
+            Connection con = DBUtil.getConnection();
+            con.setAutoCommit(false);
+
+            promoRepository.deletePromoTicketRelations(id);
+            promoRepository.deletePromo(id);
+            con.commit();
+
+            return String.format("Promo with id: %d successfully deleted!", id);
+        } catch (SQLException ex) {
+            return String.format("Error while trying to delete promo with id: %d", id);
+        }
     }
 
     private String validatePromo(Promo promo) {
@@ -46,8 +111,6 @@ public class PromoService {
 
         return null;
     }
-
-
 
     public Promo getPromoByPromoCode(String promoCode) {
         return promoRepository.getPromoByPromoCode(promoCode);

@@ -39,6 +39,7 @@ public class TicketDashboard {
             System.out.println("4. Exit Ticket Dashboard");
 
             int choice = scannerInt.nextInt();
+            String listOfTickets = ticketService.getAllTickets();
 
             switch (choice) {
                 case 1:
@@ -53,12 +54,13 @@ public class TicketDashboard {
                     System.out.println("If none, please enter 0");
                     String promoCodes = scannerString.nextLine();
 
-                    List<String> codes = Arrays.stream(promoCodes.split(", ")).toList();
-
                     List<Promo> promos = new ArrayList<>();
-                    for (String code: codes) {
-                        Promo promo = promoService.getPromoByPromoCode(code);
-                        promos.add(promo);
+                    if (!promoCodes.equals("0")) {
+                        List<String> codes = Arrays.stream(promoCodes.split(", ")).toList();
+                        for (String code: codes) {
+                            Promo promo = promoService.getPromoByPromoCode(code);
+                            promos.add(promo);
+                        }
                     }
 
                     Integer seatNumber = ticketService.getAvailableSeatNumber(flightId);
@@ -70,14 +72,13 @@ public class TicketDashboard {
                     break;
 
                 case 2:
-                    String listOfTicketsByUser = ticketService.getTicketsByUserId(userId);
-                    System.out.println(listOfTicketsByUser);
+                    System.out.println(listOfTickets);
 
                     break;
 
                 case 3:
-                    String listOfTicketsByUserDelete = ticketService.getTicketsByUserId(userId);
-                    System.out.println(listOfTicketsByUserDelete);
+                    String listOfTicketsByUser = ticketService.getTicketsByUserId(userId);
+                    System.out.println(listOfTicketsByUser);
                     System.out.println("Please, enter the ticket id for the ticket, you would like to delete");
                     int ticketId = scannerInt.nextInt();
 

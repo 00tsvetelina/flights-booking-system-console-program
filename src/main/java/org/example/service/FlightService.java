@@ -1,8 +1,9 @@
 package org.example.service;
 
 import org.example.model.Flight;
-import org.example.model.Promo;
+import org.example.model.Plane;
 import org.example.repository.FlightRepository;
+import org.example.repository.PlaneRepository;
 import org.example.repository.TicketRepository;
 import org.example.utils.DBUtil;
 
@@ -15,17 +16,24 @@ public class FlightService {
 
     private final FlightRepository flightRepository;
     private final TicketRepository ticketRepository;
+    private final PlaneRepository planeRepository;
 
 
-    public FlightService(FlightRepository flightRepository, TicketRepository ticketRepository) {
+    public FlightService(FlightRepository flightRepository, TicketRepository ticketRepository, PlaneRepository planeRepository) {
         this.flightRepository = flightRepository;
         this.ticketRepository = ticketRepository;
+        this.planeRepository = planeRepository;
     }
 
     public String getAllFlights() {
         List<Flight> flights = flightRepository.getAllFlights();
         if (flights.isEmpty()) {
             return "No flights found, sorry!";
+        }
+
+        for (Flight flight : flights) {
+            Plane plane = planeRepository.getPlaneById(flight.getPlane().getId());
+            flight.setPlane(plane);
         }
 
         StringBuilder sb = new StringBuilder();
@@ -46,6 +54,8 @@ public class FlightService {
         if (flight == null) {
             return String.format("Could not find flight with id: %d", id);
         }
+        Plane plane = planeRepository.getPlaneById(flight.getPlane().getId());
+        flight.setPlane(plane);
 
         return String.format("Flight with id: %d found - %s", id, flight);
     }
@@ -91,12 +101,11 @@ public class FlightService {
 
             ticketRepository.deleteTicketByFlightId(id);
             flightRepository.deleteFlight(id);
-
             con.commit();
 
             return String.format("Flight with id: %d successfully deleted!", id);
         } catch (SQLException ex) {
-            return String.format("Error while trying to delete flight with id: %d", id);
+            return String.format("Error occurred while trying to delete flight with id: %d", id);
         }
 
     }
@@ -124,21 +133,6 @@ public class FlightService {
         }
 
         return null;
-    }
-
-    public Flight calculateFlightDiscountPrice(Integer flightId, Promo promo) {
-        Flight flight = flightRepository.getFlightById(flightId);
-        Float flightPrice = flight.getPrice();
-
-        Float discount = promo.getPercentDiscount().floatValue();
-        Float newPrice = flightPrice - flightPrice*discount/100;
-
-        flightRepository.updateFlight(new Flight(flightId, flight.getPlane(), flight.getDestination(),
-                flight.getOrigin(), flight.getDepartureTime(), flight.getDelay(), newPrice));
-
-
-        System.out.println("Discount added, new price: $" + newPrice);
-        return flight;
     }
 
 }

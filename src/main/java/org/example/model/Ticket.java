@@ -55,14 +55,13 @@ public class Ticket {
         return promos;
     }
 
-    public void setPromo(List<Promo> promo) {
+    public void setPromos(List<Promo> promos) {
         this.promos = promos;
     }
 
     @Override
     public String toString() {
-        return "Ticket {" +
-                "id: " + id == null ? "" : id +
+        return "Ticket {id: " + id +
                 ", origin: " + flight.getOrigin() +
                 ", destination: " + flight.getDestination() +
                 ", departure date: " + flight.getDepartureTime() +
@@ -73,13 +72,13 @@ public class Ticket {
 
     private float calculatePrice() {
         Float flightPrice = flight.getPrice();
-        float newPrice;
-        float discount = 0f;
-
-        for (Promo promo: promos) {
-            discount = promo.getPercentDiscount().floatValue();
+        if (promos != null) {
+            for (Promo promo : promos) {
+                float discount = promo.getPercentDiscount().floatValue();
+                flightPrice = flightPrice - flightPrice * discount / 100;
+            }
         }
-        newPrice =  flightPrice - flightPrice*discount/100;
-        return newPrice;
+
+        return flightPrice;
     }
 }

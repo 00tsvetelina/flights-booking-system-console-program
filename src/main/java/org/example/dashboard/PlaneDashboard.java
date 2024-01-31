@@ -47,6 +47,10 @@ public class PlaneDashboard {
                     break;
 
                 case 2:
+                    String listOfPlanesToEdit = planeService.getAllPlanes();
+                    System.out.println(listOfPlanesToEdit);
+                    System.out.println("");
+
                     System.out.println("Edit a Plane:");
                     System.out.println("Please Enter Existing Plane Id");
                     int choiceIdEdit = scannerInt.nextInt();
@@ -64,6 +68,10 @@ public class PlaneDashboard {
                     break;
 
                 case 3:
+                    String listOfPlanesToDelete = planeService.getAllPlanes();
+                    System.out.println(listOfPlanesToDelete);
+                    System.out.println("");
+
                     System.out.println("Delete a Plane:");
                     System.out.println("Please Enter Plane Id");
                     int choiceIdDelete = scannerInt.nextInt();

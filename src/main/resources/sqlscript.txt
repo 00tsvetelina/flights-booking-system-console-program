@@ -22,7 +22,6 @@ CREATE TABLE ticket
    id INT(30) PRIMARY KEY NOT NULL AUTO_INCREMENT,
    flight_id INT(30) NOT NULL,
    user_id INT(30) NOT NULL,
-   promo_id INT(30),
    seat INT(4) NOT NULL UNIQUE,
    FOREIGN KEY (flight_id) REFERENCES flight(id),
    FOREIGN KEY (user_id) REFERENCES user(id),

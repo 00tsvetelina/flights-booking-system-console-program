@@ -10,9 +10,9 @@ import java.sql.SQLException;
 public class UserRepository {
 
     public User getUserById(Integer id) {
-        try {
-            PreparedStatement statement = DBUtil.getConnection().prepareStatement("SELECT * FROM user WHERE id=?");
-
+        try (PreparedStatement statement = DBUtil.getStatement(
+                "SELECT * FROM user WHERE id=?", 0
+        )) {
             statement.setInt(1, id);
             if (statement.executeQuery() == null) {
                 return null;

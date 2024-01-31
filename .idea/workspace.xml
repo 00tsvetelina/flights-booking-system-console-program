@@ -5,14 +5,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="54987696-c3e3-4b1c-81dd-7e11c3bb3c91" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/dashboard/PromoDashboard.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/dashboard/FlightDashboard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/dashboard/FlightDashboard.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/dashboard/PlaneDashboard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/dashboard/PlaneDashboard.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/dashboard/TicketDashboard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/dashboard/TicketDashboard.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/model/Plane.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/model/Plane.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/model/Ticket.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/model/Ticket.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/repository/FlightRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/repository/FlightRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/repository/PlaneRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/repository/PlaneRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/repository/PromoRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/repository/PromoRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/repository/TicketRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/repository/TicketRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/repository/UserRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/service/FlightService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/service/FlightService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/service/PromoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/service/PromoService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/service/TicketService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/service/TicketService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/utils/DBUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/utils/DBUtil.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/sqlscript.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/sqlscript.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -43,7 +54,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "Application.Main.executor": "Debug",
+    "Application.Main.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "main",
@@ -83,36 +94,5 @@
       <updated>1706021522403</updated>
     </task>
     <servers />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/org/example/service/TicketService.java</url>
-          <line>121</line>
-          <option name="timeStamp" value="21" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/org/example/repository/TicketRepository.java</url>
-          <line>170</line>
-          <option name="timeStamp" value="22" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/org/example/model/Ticket.java</url>
-          <line>13</line>
-          <option name="timeStamp" value="23" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/org/example/service/TicketService.java</url>
-          <line>81</line>
-          <option name="timeStamp" value="24" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/org/example/service/TicketService.java</url>
-          <line>90</line>
-          <option name="timeStamp" value="25" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

@@ -3,6 +3,7 @@ package org.example.dashboard;
 import org.example.model.Flight;
 import org.example.model.Plane;
 import org.example.service.FlightService;
+import org.example.service.PlaneService;
 
 import java.time.LocalDate;
 import java.util.Scanner;
@@ -10,9 +11,11 @@ import java.util.Scanner;
 public class FlightDashboard {
 
     private final FlightService flightService;
+    private final PlaneService planeService;
 
-    public FlightDashboard(FlightService flightService) {
+    public FlightDashboard(FlightService flightService, PlaneService planeService) {
         this.flightService = flightService;
+        this.planeService = planeService;
     }
 
     public void printFlightMenu() {
@@ -32,10 +35,15 @@ public class FlightDashboard {
             System.out.println("6. Exit Flight Dashboard");
 
             int choice = scannerInt.nextInt();
+            String listOfPlanes = planeService.getAllPlanes();
+            String listOfFlights = flightService.getAllFlights();
 
             switch (choice) {
 
                 case 1:
+                    System.out.println(listOfPlanes);
+                    System.out.println("");
+
                     System.out.println("Create a Flight:");
                     System.out.println("Please Enter Plane Id");
                     Integer choicePlaneId = scannerInt.nextInt();
@@ -64,10 +72,15 @@ public class FlightDashboard {
                     break;
 
                 case 2:
+                    System.out.println(listOfFlights);
+                    System.out.println("");
+
                     System.out.println("Edit a Flight:");
                     System.out.println("Please Enter Existing Flight Id");
                     int choiceIdEdit = scannerInt.nextInt();
 
+                    System.out.println(listOfPlanes);
+                    System.out.println("");
                     System.out.println("Please Enter New Plane Id");
                     int choicePlaneIdEdit = scannerInt.nextInt();
 
@@ -95,8 +108,11 @@ public class FlightDashboard {
                     break;
 
                 case 3:
+                    System.out.println(listOfFlights);
+                    System.out.println("");
+
                     System.out.println("Delete a Flight:");
-                    System.out.println("Please Flight Plane Id");
+                    System.out.println("Please Flight Id");
                     int choiceIdDelete = scannerInt.nextInt();
 
                     String responseDelete = flightService.deleteFlight(choiceIdDelete);
@@ -106,8 +122,7 @@ public class FlightDashboard {
 
                 case 4:
                     System.out.println("List of Flights: \n");
-                    String responseGetAllFlights = flightService.getAllFlights();
-                    System.out.println(responseGetAllFlights);
+                    System.out.println(listOfFlights);
 
                     break;
 

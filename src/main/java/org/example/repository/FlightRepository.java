@@ -11,16 +11,11 @@ import java.util.List;
 
 public class FlightRepository {
 
-    private final PlaneRepository planeRepository;
-
-    public FlightRepository(PlaneRepository planeRepository) {
-        this.planeRepository = planeRepository;
-    }
+    public FlightRepository() {}
 
     public List<Flight> getAllFlights() {
-        try {
-            PreparedStatement statement = DBUtil.getConnection().prepareStatement("SELECT * FROM flight");
-
+        String query = "SELECT * FROM flight";
+        try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             ResultSet response = statement.executeQuery();
             if (response == null) {
                 return null;
@@ -29,15 +24,7 @@ public class FlightRepository {
             List<Flight> flights = new ArrayList<>();
             while (response.next()) {
                 Integer id = response.getInt("id");
-                Integer planeId = response.getInt("plane_id");
-                Plane plane = planeRepository.getPlaneById(planeId);
-                String destination = response.getString("destination");
-                String origin = response.getString("origin");
-                LocalDate departureTime = response.getDate("departure_time").toLocalDate();
-                Integer delay = response.getInt("delay");
-                Float price = response.getFloat("price");
-
-                Flight flight = new Flight(id, plane, destination, origin, departureTime, delay, price);
+                Flight flight = responseGetFields(response, id);
                 flights.add(flight);
             }
 
@@ -48,11 +35,8 @@ public class FlightRepository {
     }
 
     public Flight getFlightById(Integer id) {
-        try {
-            PreparedStatement statement = DBUtil.getConnection().prepareStatement(
-                    "SELECT * FROM flight WHERE id=?"
-            );
-
+        String query = "SELECT * FROM flight WHERE id=?";
+        try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             statement.setInt(1, id);
             if (statement.executeQuery() == null) {
                 return null;
@@ -60,15 +44,7 @@ public class FlightRepository {
 
             ResultSet response = statement.executeQuery();
             if (response.next()) {
-                Integer planeId = response.getInt("plane_id");
-                Plane plane = planeRepository.getPlaneById(planeId);
-                String destination = response.getString("destination");
-                String origin = response.getString("origin");
-                LocalDate departureTime = response.getDate("departure_time").toLocalDate();
-                Integer delay = response.getInt("delay");
-                Float price = response.getFloat("price");
-
-                return new Flight(id, plane, destination, origin, departureTime, delay, price);
+                return responseGetFields(response, id);
             }
         } catch (SQLException ex) {
             return null;
@@ -78,20 +54,10 @@ public class FlightRepository {
     }
 
     public Flight createFlight(Flight flight) {
-        try {
-            PreparedStatement statement = DBUtil.getConnection().prepareStatement(
-                    "INSERT INTO flight(plane_id, destination, origin, departure_time, delay, price) " +
-                            "VALUES (?,?,?,?,?,?)",
-                    Statement.RETURN_GENERATED_KEYS
-            );
-
-            statement.setInt(1, flight.getPlane().getId());
-            statement.setString(2, flight.getDestination());
-            statement.setString(3, flight.getOrigin());
-            statement.setDate(4, Date.valueOf(flight.getDepartureTime()));
-            statement.setInt(5, flight.getDelay());
-            statement.setFloat(6, flight.getPrice());
-
+        String query = "INSERT INTO flight(plane_id, destination, origin, departure_time, delay, price) " +
+                "VALUES (?,?,?,?,?,?)";
+        try (PreparedStatement statement = DBUtil.getStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+            statementSetFields(statement, flight);
             if (statement.executeUpdate() <= 0) {
                return null;
             }
@@ -112,18 +78,12 @@ public class FlightRepository {
     }
 
     public Flight updateFlight(Flight flight) {
-        try {
-            PreparedStatement statement = DBUtil.getConnection().prepareStatement(
-                    "UPDATE flight SET plane_id=?, destination=?, origin=?, departure_time=?, delay=?, price=?" +
-                            "WHERE id=?"
-            );
-            statement.setInt(1, flight.getPlane().getId());
-            statement.setString(2, flight.getDestination());
-            statement.setString(3, flight.getOrigin());
-            statement.setDate(4, Date.valueOf(flight.getDepartureTime()));
-            statement.setInt(5, flight.getDelay());
-            statement.setFloat(6, flight.getPrice());
+        String query = "UPDATE flight SET plane_id=?, destination=?, origin=?, departure_time=?," +
+                " delay=?, price=? WHERE id=?";
+        try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
+            statementSetFields(statement, flight);
             statement.setInt(7, flight.getId());
+            
             if (statement.executeUpdate() <= 0) {
                return null;
             }
@@ -140,11 +100,9 @@ public class FlightRepository {
     }
 
     public void deleteFlight(Integer id) {
-
-        try {
-            PreparedStatement statement = DBUtil.getConnection().prepareStatement("DELETE FROM flight WHERE id=?");
+        String query = "DELETE FROM flight WHERE id=?";
+        try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             statement.setInt(1, id);
-
             if (statement.executeUpdate() < 0) {
                 System.out.printf("Error while deleting flight with id: %d", id);
             }
@@ -154,18 +112,43 @@ public class FlightRepository {
     }
 
     public void deleteFlightsByPlaneId(Integer id) {
-
-        try {
-            PreparedStatement statement = DBUtil.getConnection().prepareStatement(
-                    "DELETE FROM flight WHERE plane_id=?"
-            );
+        String query = "DELETE FROM flight WHERE plane_id=?";
+        try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             statement.setInt(1, id);
-
             if (statement.executeUpdate() < 0) {
                 System.out.printf("Error while deleting flight with plane id: %d", id);
             }
         } catch (SQLException ex) {
             System.out.printf("Error occurred while deleting flight with plane id: %d", id);
+        }
+    }
+
+
+    private Flight responseGetFields(ResultSet response, Integer id) {
+        try {
+            Integer planeId = response.getInt("plane_id");
+            String destination = response.getString("destination");
+            String origin = response.getString("origin");
+            LocalDate departureTime = response.getDate("departure_time").toLocalDate();
+            Integer delay = response.getInt("delay");
+            Float price = response.getFloat("price");
+
+            return new Flight(id, new Plane(planeId), destination, origin, departureTime, delay, price);
+        } catch (SQLException ex) {
+            return null;
+        }
+    }
+
+    private void statementSetFields(PreparedStatement statement, Flight flight) {
+        try {
+            statement.setInt(1, flight.getPlane().getId());
+            statement.setString(2, flight.getDestination());
+            statement.setString(3, flight.getOrigin());
+            statement.setDate(4, Date.valueOf(flight.getDepartureTime()));
+            statement.setInt(5, flight.getDelay());
+            statement.setFloat(6, flight.getPrice());
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
         }
     }
 }

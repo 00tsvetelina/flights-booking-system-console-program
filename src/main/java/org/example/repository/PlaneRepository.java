@@ -2,6 +2,7 @@ package org.example.repository;
 
 import org.example.model.Plane;
 import org.example.utils.DBUtil;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,10 +12,11 @@ import java.util.List;
 
 public class PlaneRepository {
 
-    public List<Plane> getAllPlanes() {
-        try {
-            PreparedStatement statement = DBUtil.getConnection().prepareStatement("SELECT * FROM plane");
+    public PlaneRepository() {}
 
+    public List<Plane> getAllPlanes() {
+        String query = "SELECT * FROM plane";
+        try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             ResultSet response = statement.executeQuery();
             if (response == null) {
                 return null;
@@ -23,10 +25,8 @@ public class PlaneRepository {
             List<Plane> planes = new ArrayList<>();
             while (response.next()) {
                 Integer id = response.getInt("id");
-                String model = response.getString("model");
-                Integer seatsCount = response.getInt("seats_count");
 
-                Plane plane = new Plane(id, model, seatsCount);
+                Plane plane = responseGetFields(response, id);
                 planes.add(plane);
             }
 
@@ -37,9 +37,8 @@ public class PlaneRepository {
     }
 
     public Plane getPlaneById(Integer id) {
-        try {
-            PreparedStatement statement = DBUtil.getConnection().prepareStatement("SELECT * FROM plane WHERE id=?");
-
+        String query = "SELECT * FROM plane WHERE id=?";
+        try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             statement.setInt(1, id);
             if (statement.executeQuery() == null) {
                 return null;
@@ -47,10 +46,7 @@ public class PlaneRepository {
 
             ResultSet response = statement.executeQuery();
             if (response.next()) {
-                String model = response.getString("model");
-                Integer seatsCount = response.getInt("seats_count");
-
-                return new Plane(id, model, seatsCount);
+                return responseGetFields(response, id);
             }
         } catch (SQLException e) {
             return null;
@@ -60,15 +56,9 @@ public class PlaneRepository {
     }
 
     public Plane createPlane(Plane plane) {
-        try {
-            PreparedStatement statement = DBUtil.getConnection().prepareStatement(
-                    "INSERT INTO plane(model, seats_count) VALUES(?,?)",
-                    Statement.RETURN_GENERATED_KEYS
-            );
-
-            statement.setString(1, plane.getModel());
-            statement.setInt(2, plane.getSeatsCount());
-
+        String query = "INSERT INTO plane(model, seats_count) VALUES(?,?)";
+        try (PreparedStatement statement = DBUtil.getStatement(query,Statement.RETURN_GENERATED_KEYS)) {
+            statementSetFields(statement, plane);
             if (statement.executeUpdate() <= 0) {
                 return null;
             }
@@ -87,12 +77,9 @@ public class PlaneRepository {
     }
 
     public Plane updatePlane(Plane plane) {
-        try {
-            PreparedStatement statement = DBUtil.getConnection().prepareStatement(
-                    "UPDATE plane SET model=?, seats_count=? WHERE id=?"
-            );
-            statement.setString(1,plane.getModel());
-            statement.setInt(2, plane.getSeatsCount());
+        String query = "UPDATE plane SET model=?, seats_count=? WHERE id=?";
+        try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
+            statementSetFields(statement, plane);
             statement.setInt(3, plane.getId());
             if (statement.executeUpdate() <= 0) {
                 return null;
@@ -109,15 +96,35 @@ public class PlaneRepository {
     }
 
     public void deletePlane(Integer id) {
-        try {
-            PreparedStatement statement = DBUtil.getConnection().prepareStatement("DELETE FROM plane WHERE id=?");
+        String query = "DELETE FROM plane WHERE id=?";
+        try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             statement.setInt(1, id);
-
             if(statement.executeUpdate() < 0) {
                 System.out.printf("Error while deleting plane with id: %d", id);
             }
         } catch (SQLException e) {
             System.out.printf("Error occurred while deleting plane with id: %d", id);
+        }
+    }
+
+
+    private Plane responseGetFields(ResultSet response, Integer id) {
+        try {
+            String model = response.getString("model");
+            Integer seatsCount = response.getInt("seats_count");
+
+            return new Plane(id, model, seatsCount);
+        } catch (SQLException ex) {
+            return null;
+        }
+    }
+
+    private void statementSetFields(PreparedStatement statement, Plane plane) {
+        try {
+            statement.setString(1,plane.getModel());
+            statement.setInt(2, plane.getSeatsCount());
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
         }
     }
 }
