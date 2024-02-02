@@ -100,10 +100,12 @@ public class PlaneDashboard {
 
                 case 6:
                     System.out.println("Exiting Plane Dashboard...");
-
-                    scannerInt.close();
-                    scannerString.close();
                     run = false;
+
+                    break;
+
+                default:
+                    System.out.println("Please enter a valid choice of number");
 
                     break;
             }

@@ -116,10 +116,12 @@ public class PromoDashboard {
 
                 case 6:
                     System.out.println("Exiting Promo Dashboard...");
-
-                    scannerInt.close();
-                    scannerString.close();
                     run = false;
+
+                    break;
+
+                default:
+                    System.out.println("Please enter a valid choice of number");
 
                     break;
             }

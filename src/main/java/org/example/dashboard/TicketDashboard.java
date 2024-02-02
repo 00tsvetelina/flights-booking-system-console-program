@@ -89,10 +89,12 @@ public class TicketDashboard {
 
                 case 4:
                     System.out.println("Exiting Ticket Dashboard...");
-
-                    scannerInt.close();
-                    scannerString.close();
                     run = false;
+
+                    break;
+
+                default:
+                    System.out.println("Please enter a valid choice of number");
 
                     break;
             }

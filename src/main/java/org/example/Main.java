@@ -1,15 +1,9 @@
 package org.example;
 
 
-import org.example.dashboard.FlightDashboard;
-import org.example.dashboard.PlaneDashboard;
-import org.example.dashboard.PromoDashboard;
-import org.example.dashboard.TicketDashboard;
+import org.example.dashboard.*;
 import org.example.repository.*;
-import org.example.service.FlightService;
-import org.example.service.PlaneService;
-import org.example.service.PromoService;
-import org.example.service.TicketService;
+import org.example.service.*;
 import org.example.utils.DBUtil;
 
 import java.sql.SQLException;
@@ -29,18 +23,17 @@ public class Main {
         TicketService ticketService = new TicketService(ticketRepository, userRepository,
                 promoRepository, flightRepository, planeRepository);
         PromoService promoService = new PromoService(promoRepository);
+        UserService userService = new UserService(userRepository, ticketRepository);
 
         PlaneDashboard planeDashboard = new PlaneDashboard(planeService);
         FlightDashboard flightDashboard = new FlightDashboard(flightService, planeService);
         TicketDashboard ticketDashboard = new TicketDashboard(ticketService, flightService, promoService);
         PromoDashboard promoDashboard = new PromoDashboard(promoService);
+        UserDashboard userDashboard = new UserDashboard(userService, planeDashboard, flightDashboard,
+                promoDashboard, ticketDashboard);
 
-
-//        planeDashboard.printPlaneMenu();
-//        flightDashboard.printFlightMenu();
-        ticketDashboard.printTicketMenu(1);
-//        promoDashboard.printPromoMenu();
-
+        MainDashboard mainDashboard = new MainDashboard(userService, userDashboard);
+        mainDashboard.printMainDashboard();
 
         try {
             DBUtil.getConnection().close();

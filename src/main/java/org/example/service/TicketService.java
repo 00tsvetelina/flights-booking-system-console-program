@@ -146,7 +146,7 @@ public class TicketService {
         }
     }
 
-    public String validateTicket(Ticket ticket) {
+    private String validateTicket(Ticket ticket) {
         if (ticket.getFlight().getId() <= 0 || ticket.getFlight() == null) {
             return "Invalid flight id, please enter a valid one";
         }
@@ -164,18 +164,6 @@ public class TicketService {
                 return String.format("Promo code: %s is already used", promo.getPromoCode());
             }
         }
-
-//        if (ticket.getPromos() != null) {
-//            for (Promo promo : ticket.getPromos()) {
-//                if (promo.getUsed() && promo.getSingleUse()) {
-//                    return String.format("Promo code: %s is already used", promo.getPromoCode());
-//                }
-//            }
-//        } else {
-//           List<Promo> promos = ticket.getPromos();
-//           promos = new ArrayList<>();
-//           ticket.setPromos(promos);
-//        }
 
         return null;
     }
