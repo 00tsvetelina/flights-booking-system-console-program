@@ -18,7 +18,7 @@ public class PromoService {
     }
 
     public String getAllPromos() {
-        List<Promo> promos = promoRepository.getAllPromos();
+        List<Promo> promos = promoRepository.getAll();
         if (promos.isEmpty()) {
             return "No promos found, sorry!";
         }
@@ -37,7 +37,7 @@ public class PromoService {
             return "Invalid id, please enter a positive number";
         }
 
-        Promo promo = promoRepository.getPromoById(id);
+        Promo promo = promoRepository.getById(id);
         if (promo == null) {
             return String.format("Could not find promo with id: %d", id);
         }
@@ -51,7 +51,7 @@ public class PromoService {
             return validationError;
         }
 
-        promoRepository.createPromo(promo);
+        promoRepository.create(promo);
         return  "Promo created successfully";
     }
 
@@ -65,7 +65,7 @@ public class PromoService {
             return validationError;
         }
 
-        promoRepository.updatePromo(promo);
+        promoRepository.update(promo);
         return "Promo updated successfully";
     }
 
@@ -83,7 +83,7 @@ public class PromoService {
             con.setAutoCommit(false);
 
             promoRepository.deletePromoTicketRelations(id);
-            promoRepository.deletePromo(id);
+            promoRepository.delete(id);
             con.commit();
 
             return String.format("Promo with id: %d successfully deleted!", id);

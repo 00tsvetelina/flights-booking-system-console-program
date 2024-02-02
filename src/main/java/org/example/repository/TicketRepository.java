@@ -13,11 +13,12 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TicketRepository {
+public class TicketRepository implements Repository<Ticket> {
 
     public TicketRepository() {}
 
-    public List<Ticket> getAllTickets() {
+    @Override
+    public List<Ticket> getAll() {
         String query = "SELECT * FROM ticket";
         try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             ResultSet response = statement.executeQuery();
@@ -62,7 +63,8 @@ public class TicketRepository {
 
     }
 
-    public Ticket getTicketById(Integer id) {
+    @Override
+    public Ticket getById(Integer id) {
         String query = "SELECT * FROM ticket WHERE id=?";
         try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             statement.setInt(1,id);
@@ -81,7 +83,8 @@ public class TicketRepository {
         return null;
     }
 
-    public Ticket createTicket(Ticket ticket) {
+    @Override
+    public Ticket create(Ticket ticket) {
         String query = "INSERT INTO ticket(flight_id, user_id, seat) VALUES (?,?,?)";
         try (PreparedStatement statement = DBUtil.getStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             statement.setInt(1, ticket.getFlight().getId());
@@ -106,7 +109,13 @@ public class TicketRepository {
         return null;
     }
 
-     public void deleteTicket(Integer id) {
+    @Override
+    public Ticket update(Ticket ticket) {
+        return null;
+    }
+
+    @Override
+    public void delete(Integer id) {
          String query = "DELETE FROM ticket WHERE id=?";
          try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             statement.setInt(1, id);

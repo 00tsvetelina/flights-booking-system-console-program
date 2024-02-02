@@ -2,9 +2,8 @@ package org.example.model;
 
 import java.time.LocalDate;
 
-public class Promo {
+public class Promo extends CommonIdClass {
 
-    private Integer id;
     private String promoCode;
     private Integer percentDiscount;
     private LocalDate durationEnd;
@@ -12,7 +11,8 @@ public class Promo {
     private Boolean isUsed;
 
 
-    public Promo(Integer id, String promoCode, Integer percentDiscount, LocalDate durationEnd, Boolean singleUse, Boolean isUsed) {
+    public Promo(Integer id, String promoCode, Integer percentDiscount,
+                 LocalDate durationEnd, Boolean singleUse, Boolean isUsed) {
         this.id = id;
         this.promoCode = promoCode;
         this.percentDiscount = percentDiscount;

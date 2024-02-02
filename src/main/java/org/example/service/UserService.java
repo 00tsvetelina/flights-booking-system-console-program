@@ -21,7 +21,7 @@ public class UserService {
     }
 
     public String getAllUsers() {
-        List<User> users = userRepository.getAllUsers();
+        List<User> users = userRepository.getAll();
         if (users.isEmpty()) {
             return "No users found, sorry!";
         }
@@ -40,7 +40,7 @@ public class UserService {
             return "Invalid id, please enter a positive number";
         }
 
-        User user = userRepository.getUserById(id);
+        User user = userRepository.getById(id);
         if (user == null) {
             return String.format("Could not find user with id: %d", id);
         }
@@ -54,7 +54,7 @@ public class UserService {
             return validationError;
         }
 
-        user = userRepository.registerUser(user);
+        user = userRepository.create(user);
         if (user == null) {
             return  "Registration process failed, please try again!";
         }
@@ -100,7 +100,7 @@ public class UserService {
                 return "Invalid id, please enter a positive number";
             }
 
-            if (userRepository.getUserById(id) == null) {
+            if (userRepository.getById(id) == null) {
                 return String.format("Cannot find user with id: %d", id);
             }
 
@@ -115,7 +115,7 @@ public class UserService {
             }
 
             userRepository.deleteTicketsByUserId(id);
-            userRepository.deleteUser(id);
+            userRepository.delete(id);
             con.commit();
 
             return String.format("User with id: %d successfully deleted!", id);

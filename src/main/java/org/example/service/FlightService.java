@@ -19,20 +19,21 @@ public class FlightService {
     private final PlaneRepository planeRepository;
 
 
-    public FlightService(FlightRepository flightRepository, TicketRepository ticketRepository, PlaneRepository planeRepository) {
+    public FlightService(FlightRepository flightRepository, TicketRepository ticketRepository,
+                         PlaneRepository planeRepository) {
         this.flightRepository = flightRepository;
         this.ticketRepository = ticketRepository;
         this.planeRepository = planeRepository;
     }
 
     public String getAllFlights() {
-        List<Flight> flights = flightRepository.getAllFlights();
+        List<Flight> flights = flightRepository.getAll();
         if (flights.isEmpty()) {
             return "No flights found, sorry!";
         }
 
         for (Flight flight : flights) {
-            Plane plane = planeRepository.getPlaneById(flight.getPlane().getId());
+            Plane plane = planeRepository.getById(flight.getPlane().getId());
             flight.setPlane(plane);
         }
 
@@ -50,11 +51,11 @@ public class FlightService {
             return "Invalid id, please enter a positive number";
         }
 
-        Flight flight = flightRepository.getFlightById(id);
+        Flight flight = flightRepository.getById(id);
         if (flight == null) {
             return String.format("Could not find flight with id: %d", id);
         }
-        Plane plane = planeRepository.getPlaneById(flight.getPlane().getId());
+        Plane plane = planeRepository.getById(flight.getPlane().getId());
         flight.setPlane(plane);
 
         return String.format("Flight with id: %d found - %s", id, flight);
@@ -66,7 +67,7 @@ public class FlightService {
             return validationError;
         }
 
-        flightRepository.createFlight(flight);
+        flightRepository.create(flight);
 
         return "Flight created successfully";
     }
@@ -81,7 +82,7 @@ public class FlightService {
             return validationError;
         }
 
-        flightRepository.updateFlight(flight);
+        flightRepository.update(flight);
 
         return "Flight updated successfully";
     }
@@ -92,7 +93,7 @@ public class FlightService {
                 return "Invalid id, please enter a positive number";
             }
 
-            if (flightRepository.getFlightById(id) == null) {
+            if (flightRepository.getById(id) == null) {
                 return String.format("Cannot find flight with id: %d", id);
             }
 
@@ -100,7 +101,7 @@ public class FlightService {
             con.setAutoCommit(false);
 
             ticketRepository.deleteTicketByFlightId(id);
-            flightRepository.deleteFlight(id);
+            flightRepository.delete(id);
             con.commit();
 
             return String.format("Flight with id: %d successfully deleted!", id);

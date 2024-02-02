@@ -8,9 +8,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PromoRepository {
+public class PromoRepository implements Repository<Promo> {
 
-    public List<Promo> getAllPromos() {
+    @Override
+    public List<Promo> getAll() {
         String query = "SELECT * FROM promo";
         try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             ResultSet response = statement.executeQuery();
@@ -32,7 +33,8 @@ public class PromoRepository {
         }
     }
 
-    public Promo getPromoById(Integer id){
+    @Override
+    public Promo getById(Integer id){
         String query = "SELECT * FROM promo WHERE id=?";
         try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             statement.setInt(1, id);
@@ -101,7 +103,8 @@ public class PromoRepository {
         return null;
     }
 
-    public Promo createPromo(Promo promo) {
+    @Override
+    public Promo create(Promo promo) {
         String query = "INSERT INTO promo(promo_code, percent_discount, duration_end, single_use, is_used)" +
                 " VALUES (?,?,?,?,?)";
         try (PreparedStatement statement = DBUtil.getStatement(query, Statement.RETURN_GENERATED_KEYS)) {
@@ -124,7 +127,8 @@ public class PromoRepository {
         return null;
     }
 
-    public Promo updatePromo(Promo promo) {
+    @Override
+    public Promo update(Promo promo) {
         String query = "UPDATE promo SET promo_code=?, percent_discount=?," +
                 " duration_end=?, single_use=?, is_used=? WHERE id=?";
         try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
@@ -148,7 +152,8 @@ public class PromoRepository {
         return null;
     }
 
-    public void deletePromo(Integer id) {
+    @Override
+    public void delete(Integer id) {
         String query = "DELETE FROM promo WHERE id=?";
         try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             statement.setInt(1, id);

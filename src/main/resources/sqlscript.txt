@@ -33,7 +33,7 @@ CREATE TABLE user
    id INT(30) PRIMARY KEY NOT NULL AUTO_INCREMENT,
    user_name VARCHAR(10) NOT NULL UNIQUE,
    email VARCHAR(20) NOT NULL UNIQUE,
-   password VARCHAR(30) NOT NULL,
+   password VARCHAR(256) NOT NULL,
    is_enabled BOOLEAN DEFAULT true,
    role VARCHAR(10) DEFAULT "user"
 );

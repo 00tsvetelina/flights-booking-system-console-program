@@ -20,7 +20,7 @@ public class PlaneService {
     }
 
     public String getAllPlanes() {
-        List<Plane> planes = planeRepository.getAllPlanes();
+        List<Plane> planes = planeRepository.getAll();
         if (planes.isEmpty()) {
             return "No planes found, sorry!";
         }
@@ -39,7 +39,7 @@ public class PlaneService {
             return "Invalid id, please enter a positive number";
         }
 
-        Plane plane = planeRepository.getPlaneById(id);
+        Plane plane = planeRepository.getById(id);
         if (plane == null) {
             return String.format("Could not find plane with id: %d", id);
         }
@@ -53,7 +53,7 @@ public class PlaneService {
             return validationError;
         }
 
-        Plane createdPlane = planeRepository.createPlane(plane);
+        Plane createdPlane = planeRepository.create(plane);
         if (createdPlane == null) {
             return "Could not create new plane";
         }
@@ -71,7 +71,7 @@ public class PlaneService {
             return validationError;
         }
 
-        Plane updatedPlane = planeRepository.updatePlane(plane);
+        Plane updatedPlane = planeRepository.update(plane);
         if (updatedPlane == null) {
             return "Could not update plane";
         }
@@ -85,7 +85,7 @@ public class PlaneService {
                 return "Invalid id, please enter a positive number";
             }
 
-            if (planeRepository.getPlaneById(id) == null) {
+            if (planeRepository.getById(id) == null) {
                 return String.format("Cannot find plane with id: %d", id);
             }
 
@@ -93,7 +93,7 @@ public class PlaneService {
             con.setAutoCommit(false);
 
             flightRepository.deleteFlightsByPlaneId(id);
-            planeRepository.deletePlane(id);
+            planeRepository.delete(id);
 
             con.commit();
 

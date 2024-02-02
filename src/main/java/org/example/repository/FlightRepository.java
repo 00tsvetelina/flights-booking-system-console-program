@@ -9,11 +9,12 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FlightRepository {
+public class FlightRepository implements Repository<Flight>{
 
     public FlightRepository() {}
 
-    public List<Flight> getAllFlights() {
+    @Override
+    public List<Flight> getAll() {
         String query = "SELECT * FROM flight";
         try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             ResultSet response = statement.executeQuery();
@@ -34,7 +35,8 @@ public class FlightRepository {
         }
     }
 
-    public Flight getFlightById(Integer id) {
+    @Override
+    public Flight getById(Integer id) {
         String query = "SELECT * FROM flight WHERE id=?";
         try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             statement.setInt(1, id);
@@ -53,7 +55,8 @@ public class FlightRepository {
         return null;
     }
 
-    public Flight createFlight(Flight flight) {
+    @Override
+    public Flight create(Flight flight) {
         String query = "INSERT INTO flight(plane_id, destination, origin, departure_time, delay, price) " +
                 "VALUES (?,?,?,?,?,?)";
         try (PreparedStatement statement = DBUtil.getStatement(query, Statement.RETURN_GENERATED_KEYS)) {
@@ -77,7 +80,8 @@ public class FlightRepository {
         return null;
     }
 
-    public Flight updateFlight(Flight flight) {
+    @Override
+    public Flight update(Flight flight) {
         String query = "UPDATE flight SET plane_id=?, destination=?, origin=?, departure_time=?," +
                 " delay=?, price=? WHERE id=?";
         try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
@@ -99,7 +103,8 @@ public class FlightRepository {
         return null;
     }
 
-    public void deleteFlight(Integer id) {
+    @Override
+    public void delete(Integer id) {
         String query = "DELETE FROM flight WHERE id=?";
         try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             statement.setInt(1, id);

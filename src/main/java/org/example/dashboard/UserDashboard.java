@@ -48,6 +48,9 @@ public class UserDashboard {
 
                     if (choiceDelete.equals("yes")) {
                         userService.deleteUser(user.getId());
+                        run = false;
+
+                        break;
                     }
 
                     break;
@@ -69,7 +72,6 @@ public class UserDashboard {
     public void printAdminMenu(User user) {
         boolean run = true;
         Scanner scannerInt = new Scanner(System.in);
-        Scanner scannerString = new Scanner(System.in);
         Scanner scannerBoolean = new Scanner(System.in);
 
         while (run) {
@@ -121,8 +123,5 @@ public class UserDashboard {
                     break;
             }
         }
-//
-//        scannerInt.close();
-//        scannerString.close();
     }
 }

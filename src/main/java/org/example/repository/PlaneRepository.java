@@ -10,11 +10,12 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlaneRepository {
+public class PlaneRepository implements Repository<Plane> {
 
     public PlaneRepository() {}
 
-    public List<Plane> getAllPlanes() {
+    @Override
+    public List<Plane> getAll() {
         String query = "SELECT * FROM plane";
         try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             ResultSet response = statement.executeQuery();
@@ -36,7 +37,8 @@ public class PlaneRepository {
         }
     }
 
-    public Plane getPlaneById(Integer id) {
+    @Override
+    public Plane getById(Integer id) {
         String query = "SELECT * FROM plane WHERE id=?";
         try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             statement.setInt(1, id);
@@ -55,7 +57,8 @@ public class PlaneRepository {
         return null;
     }
 
-    public Plane createPlane(Plane plane) {
+    @Override
+    public Plane create(Plane plane) {
         String query = "INSERT INTO plane(model, seats_count) VALUES(?,?)";
         try (PreparedStatement statement = DBUtil.getStatement(query,Statement.RETURN_GENERATED_KEYS)) {
             statementSetFields(statement, plane);
@@ -76,7 +79,9 @@ public class PlaneRepository {
         return null;
     }
 
-    public Plane updatePlane(Plane plane) {
+
+    @Override
+    public Plane update(Plane plane) {
         String query = "UPDATE plane SET model=?, seats_count=? WHERE id=?";
         try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             statementSetFields(statement, plane);
@@ -95,7 +100,8 @@ public class PlaneRepository {
         return null;
     }
 
-    public void deletePlane(Integer id) {
+    @Override
+    public void delete(Integer id) {
         String query = "DELETE FROM plane WHERE id=?";
         try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             statement.setInt(1, id);

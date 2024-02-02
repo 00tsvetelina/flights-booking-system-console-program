@@ -29,14 +29,14 @@ public class TicketService {
     }
 
     public String getAllTickets() {
-        List<Ticket> tickets = ticketRepository.getAllTickets();
+        List<Ticket> tickets = ticketRepository.getAll();
         if (tickets.isEmpty()) {
             return "No tickets found, sorry!";
         }
 
         for (Ticket ticket : tickets) {
-            Flight flight = flightRepository.getFlightById(ticket.getFlight().getId());
-            User user = userRepository.getUserById(ticket.getUser().getId());
+            Flight flight = flightRepository.getById(ticket.getFlight().getId());
+            User user = userRepository.getById(ticket.getUser().getId());
             List<Promo> promos = promoRepository.getPromosByTicketId(ticket.getId());
             ticket.setFlight(flight);
             ticket.setUser(user);
@@ -57,14 +57,14 @@ public class TicketService {
             return "Invalid id, please enter a positive number";
         }
 
-        User user = userRepository.getUserById(userId);
+        User user = userRepository.getById(userId);
         if (user == null) {
             return String.format("No user found with id: %d", userId);
         }
 
         List<Ticket> tickets = ticketRepository.getTicketsByUserId(userId);
         for (Ticket ticket : tickets) {
-            Flight flight = flightRepository.getFlightById(ticket.getFlight().getId());
+            Flight flight = flightRepository.getById(ticket.getFlight().getId());
             List<Promo> promos = promoRepository.getPromosByTicketId(ticket.getId());
 
             ticket.setFlight(flight);
@@ -88,7 +88,7 @@ public class TicketService {
             return "Invalid id, please enter a positive number";
         }
 
-        Ticket ticket = ticketRepository.getTicketById(id);
+        Ticket ticket = ticketRepository.getById(id);
         if (ticket == null) {
             return String.format("Could not find ticket with id: %d", id);
         }
@@ -106,12 +106,12 @@ public class TicketService {
             Connection con = DBUtil.getConnection();
             con.setAutoCommit(false);
 
-            ticket = ticketRepository.createTicket(ticket);
+            ticket = ticketRepository.create(ticket);
             ticketRepository.createTicketPromoRelations(ticket);
 
             for (Promo promo: ticket.getPromos()) {
                 promo.setUsed(true);
-                promoRepository.updatePromo(promo);
+                promoRepository.update(promo);
             }
 
             con.commit();
@@ -129,7 +129,7 @@ public class TicketService {
                 return "Invalid id, please enter a positive number";
             }
 
-            if (ticketRepository.getTicketById(id) == null) {
+            if (ticketRepository.getById(id) == null) {
                 return String.format("Cannot find ticket with id: %d", id);
             }
 
@@ -137,7 +137,7 @@ public class TicketService {
             con.setAutoCommit(false);
 
             ticketRepository.deleteTicketPromoRelations(id);
-            ticketRepository.deleteTicket(id);
+            ticketRepository.delete(id);
             con.commit();
 
             return String.format("Ticket with id: %d successfully deleted!", id);
@@ -169,11 +169,11 @@ public class TicketService {
     }
 
     public Integer getAvailableSeatNumber(Integer flightId) {
-        Flight flight = flightRepository.getFlightById(flightId);
-        Plane plane = planeRepository.getPlaneById(flight.getPlane().getId());
+        Flight flight = flightRepository.getById(flightId);
+        Plane plane = planeRepository.getById(flight.getPlane().getId());
         Integer seatsCount = plane.getSeatsCount();
 
-         List<Ticket> tickets = ticketRepository.getAllTickets();
+         List<Ticket> tickets = ticketRepository.getAll();
          Set<Integer> occupiedSeats = new HashSet<>();
          tickets.forEach(ticket -> {
             Integer seat = ticket.getSeat();

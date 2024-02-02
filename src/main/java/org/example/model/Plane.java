@@ -1,8 +1,7 @@
 package org.example.model;
 
-public class Plane {
+public class Plane extends CommonIdClass {
 
-    private Integer id;
     private String model;
     private Integer seatsCount;
 

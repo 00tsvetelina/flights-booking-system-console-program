@@ -2,9 +2,8 @@ package org.example.model;
 
 import java.time.LocalDate;
 
-public class Flight {
+public class Flight extends CommonIdClass {
 
-    private Integer id;
     private Plane plane;
     private String destination;
     private String origin;

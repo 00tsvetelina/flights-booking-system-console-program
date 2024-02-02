@@ -10,9 +10,10 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserRepository {
+public class UserRepository implements Repository<User> {
 
-    public List<User> getAllUsers() {
+    @Override
+    public List<User> getAll() {
         String query =  "SELECT * FROM user";
         try (PreparedStatement statement = DBUtil.getStatement(query, 0)){
             ResultSet response = statement.executeQuery();
@@ -33,7 +34,8 @@ public class UserRepository {
         }
     }
 
-    public User getUserById(Integer id) {
+    @Override
+    public User getById(Integer id) {
         String query = "SELECT * FROM user WHERE id=?";
         try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             statement.setInt(1, id);
@@ -111,7 +113,8 @@ public class UserRepository {
         return null;
     }
 
-    public User registerUser(User user) {
+    @Override
+    public User create(User user) {
         String query = "INSERT INTO user(user_name, email, password, is_enabled, role) VALUES (?,?,?,?,?)";
         try (PreparedStatement statement = DBUtil.getStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             statementSetFields(statement, user);
@@ -130,6 +133,11 @@ public class UserRepository {
             return null;
         }
 
+        return null;
+    }
+
+    @Override
+    public User update(User user) {
         return null;
     }
 
@@ -168,7 +176,7 @@ public class UserRepository {
         }
     }
 
-    public void deleteUser(Integer id) {
+    public void delete (Integer id) {
         String query = "DELETE FROM user WHERE id=?";
         try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             statement.setInt(1, id);

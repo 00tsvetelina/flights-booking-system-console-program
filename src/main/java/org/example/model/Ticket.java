@@ -2,9 +2,8 @@ package org.example.model;
 
 import java.util.List;
 
-public class Ticket {
+public class Ticket extends CommonIdClass{
 
-    private Integer id;
     private Flight flight;
     private Integer seat;
     private User user;

@@ -1,8 +1,7 @@
 package org.example.model;
 
-public class User {
+public class User extends CommonIdClass{
 
-    private Integer id;
     private String userName;
     private String email;
     private String password;
