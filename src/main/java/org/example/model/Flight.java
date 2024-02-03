@@ -2,7 +2,7 @@ package org.example.model;
 
 import java.time.LocalDate;
 
-public class Flight extends CommonIdClass {
+public class Flight extends BaseId {
 
     private Plane plane;
     private String destination;
@@ -11,8 +11,9 @@ public class Flight extends CommonIdClass {
     private Integer delay;
     private Float price;
 
-    public Flight(Integer id, Plane plane, String destination, String origin, LocalDate departureTime, Integer delay, Float price) {
-        this.id = id;
+    public Flight(Integer id, Plane plane, String destination, String origin,
+                  LocalDate departureTime, Integer delay, Float price) {
+        super(id);
         this.plane = plane;
         this.destination = destination;
         this.origin = origin;
@@ -22,15 +23,7 @@ public class Flight extends CommonIdClass {
     }
 
     public Flight(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
+        super(id);
     }
 
     public Plane getPlane() {
@@ -84,7 +77,7 @@ public class Flight extends CommonIdClass {
     @Override
     public String toString() {
         return "Flight {" +
-                "id: " + id +
+                "id: " + getId() +
                 ", plane: " + plane +
                 ", destination: " + destination + '\'' +
                 ", origin: " + origin + '\'' +

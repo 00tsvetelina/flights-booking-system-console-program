@@ -24,8 +24,7 @@ public class FlightRepository implements Repository<Flight>{
 
             List<Flight> flights = new ArrayList<>();
             while (response.next()) {
-                Integer id = response.getInt("id");
-                Flight flight = responseGetFields(response, id);
+                Flight flight = responseGetFields(response);
                 flights.add(flight);
             }
 
@@ -40,13 +39,13 @@ public class FlightRepository implements Repository<Flight>{
         String query = "SELECT * FROM flight WHERE id=?";
         try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             statement.setInt(1, id);
-            if (statement.executeQuery() == null) {
+            ResultSet response = statement.executeQuery();
+            if (response == null) {
                 return null;
             }
 
-            ResultSet response = statement.executeQuery();
             if (response.next()) {
-                return responseGetFields(response, id);
+                return responseGetFields(response);
             }
         } catch (SQLException ex) {
             return null;
@@ -87,33 +86,19 @@ public class FlightRepository implements Repository<Flight>{
         try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             statementSetFields(statement, flight);
             statement.setInt(7, flight.getId());
-            
             if (statement.executeUpdate() <= 0) {
                return null;
             }
 
-            if (statement.executeUpdate() > 0) {
-                return flight;
-            }
-
+            return flight;
         } catch (SQLException ex) {
             return null;
         }
-
-        return null;
     }
 
     @Override
-    public void delete(Integer id) {
-        String query = "DELETE FROM flight WHERE id=?";
-        try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
-            statement.setInt(1, id);
-            if (statement.executeUpdate() < 0) {
-                System.out.printf("Error while deleting flight with id: %d", id);
-            }
-        } catch (SQLException ex) {
-            System.out.printf("Error occurred while deleting flight with id: %d", id);
-        }
+    public void deleteById(Integer id, String object) {
+        Repository.super.deleteById(id, object);
     }
 
     public void deleteFlightsByPlaneId(Integer id) {
@@ -129,8 +114,9 @@ public class FlightRepository implements Repository<Flight>{
     }
 
 
-    private Flight responseGetFields(ResultSet response, Integer id) {
+    private Flight responseGetFields(ResultSet response) {
         try {
+            Integer id = response.getInt("id");
             Integer planeId = response.getInt("plane_id");
             String destination = response.getString("destination");
             String origin = response.getString("origin");

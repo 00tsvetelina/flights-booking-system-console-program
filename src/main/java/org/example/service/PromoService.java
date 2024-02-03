@@ -9,7 +9,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
-public class PromoService {
+public class PromoService implements Service<Promo>{
 
     private final PromoRepository promoRepository;
 
@@ -17,7 +17,8 @@ public class PromoService {
         this.promoRepository = promoRepository;
     }
 
-    public String getAllPromos() {
+    @Override
+    public String getAll() {
         List<Promo> promos = promoRepository.getAll();
         if (promos.isEmpty()) {
             return "No promos found, sorry!";
@@ -32,7 +33,8 @@ public class PromoService {
         return sb.toString();
     }
 
-    public String getPromoById(Integer id) {
+    @Override
+    public String getById(Integer id) {
         if (id <= 0) {
             return "Invalid id, please enter a positive number";
         }
@@ -45,7 +47,8 @@ public class PromoService {
         return String.format("Promo with id: %d found - %s", id, promo);
     }
 
-    public String createPromo(Promo promo) {
+    @Override
+    public String create(Promo promo) {
         String validationError = validatePromo(promo);
         if (validationError != null) {
             return validationError;
@@ -55,7 +58,8 @@ public class PromoService {
         return  "Promo created successfully";
     }
 
-    public String updatePromo(Promo promo) {
+    @Override
+    public String update(Promo promo) {
         if (promo.getId() == null) {
            return "Promo id cannot be null";
         }
@@ -69,7 +73,8 @@ public class PromoService {
         return "Promo updated successfully";
     }
 
-    public String deletePromo(Integer id) {
+    @Override
+    public String deleteById(Integer id) {
         try {
             if (id <= 0) {
                 return "Invalid id, please enter a positive number";
@@ -83,7 +88,7 @@ public class PromoService {
             con.setAutoCommit(false);
 
             promoRepository.deletePromoTicketRelations(id);
-            promoRepository.delete(id);
+            promoRepository.deleteById(id, "promo");
             con.commit();
 
             return String.format("Promo with id: %d successfully deleted!", id);

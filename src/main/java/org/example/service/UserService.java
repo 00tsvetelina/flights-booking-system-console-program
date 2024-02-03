@@ -10,7 +10,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-public class UserService {
+public class UserService implements Service<User> {
 
     private final UserRepository userRepository;
     private final TicketRepository ticketRepository;
@@ -20,7 +20,8 @@ public class UserService {
         this.ticketRepository = ticketRepository;
     }
 
-    public String getAllUsers() {
+    @Override
+    public String getAll() {
         List<User> users = userRepository.getAll();
         if (users.isEmpty()) {
             return "No users found, sorry!";
@@ -35,7 +36,8 @@ public class UserService {
         return sb.toString();
     }
 
-    public String getUserById(Integer id) {
+    @Override
+    public String getById(Integer id) {
         if (id <= 0) {
             return "Invalid id, please enter a positive number";
         }
@@ -48,7 +50,8 @@ public class UserService {
         return String.format("User with id: %d found - %s", id, user);
     }
 
-    public String registerUser(User user) {
+    @Override
+    public String create(User user) {
         String validationError = validateUser(user);
         if (validationError != null) {
             return validationError;
@@ -60,6 +63,11 @@ public class UserService {
         }
 
         return "Registration was success!";
+    }
+
+    @Override
+    public String update(User obj) {
+        return null;
     }
 
     public User loginUser(String userName, String password) {
@@ -84,17 +92,18 @@ public class UserService {
     }
 
 
-    public String setDisableOrEnableUser(User user, Boolean choice) {
-        String validationError = validateUser(user);
-        if (validationError != null) {
-            return validationError;
+    public String setDisableOrEnableUser(Integer id, Boolean choice) {
+        User user = userRepository.getById(id);
+        if (user.getEnabled().equals(choice)) {
+            return String.format("Enable status is already set to %s, no changes have occurred", choice);
         }
 
         userRepository.setDisableOrEnableUser(user, choice);
-        return "User *is enable* status changed successfully ";
+        return "User *is enabled* status changed successfully ";
     }
 
-    public String deleteUser(Integer id) {
+    @Override
+    public String deleteById(Integer id) {
         try {
             if (id <= 0) {
                 return "Invalid id, please enter a positive number";
@@ -112,10 +121,10 @@ public class UserService {
                 for (Ticket ticket : tickets) {
                     ticketRepository.deleteTicketPromoRelations(ticket.getId());
                 }
+                userRepository.deleteTicketsByUserId(id);
             }
 
-            userRepository.deleteTicketsByUserId(id);
-            userRepository.delete(id);
+            userRepository.deleteById(id, "user");
             con.commit();
 
             return String.format("User with id: %d successfully deleted!", id);

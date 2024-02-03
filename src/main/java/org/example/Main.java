@@ -32,8 +32,7 @@ public class Main {
         UserDashboard userDashboard = new UserDashboard(userService, planeDashboard, flightDashboard,
                 promoDashboard, ticketDashboard);
 
-        MainDashboard mainDashboard = new MainDashboard(userService, userDashboard);
-        mainDashboard.printMainDashboard();
+        userDashboard.printMenu();
 
         try {
             DBUtil.getConnection().close();

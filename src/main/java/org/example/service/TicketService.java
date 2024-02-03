@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class TicketService {
+public class TicketService implements Service<Ticket> {
 
     private final TicketRepository ticketRepository;
     private final UserRepository userRepository;
@@ -28,7 +28,8 @@ public class TicketService {
         this.planeRepository = planeRepository;
     }
 
-    public String getAllTickets() {
+    @Override
+    public String getAll() {
         List<Ticket> tickets = ticketRepository.getAll();
         if (tickets.isEmpty()) {
             return "No tickets found, sorry!";
@@ -63,15 +64,16 @@ public class TicketService {
         }
 
         List<Ticket> tickets = ticketRepository.getTicketsByUserId(userId);
+        if (tickets.isEmpty()) {
+            return "No tickets found, sorry!";
+        }
+
         for (Ticket ticket : tickets) {
             Flight flight = flightRepository.getById(ticket.getFlight().getId());
             List<Promo> promos = promoRepository.getPromosByTicketId(ticket.getId());
 
             ticket.setFlight(flight);
             ticket.setPromos(promos);
-        }
-        if (tickets.isEmpty()) {
-            return String.format("No tickets found for user with id %d, sorry!", userId);
         }
 
         StringBuilder sb = new StringBuilder();
@@ -83,7 +85,8 @@ public class TicketService {
         return sb.toString();
     }
 
-    public String getTicketById(Integer id) {
+    @Override
+    public String getById(Integer id) {
         if (id <= 0) {
             return "Invalid id, please enter a positive number";
         }
@@ -96,7 +99,8 @@ public class TicketService {
         return String.format("Ticket with id: %d found - %s", id, ticket);
     }
 
-    public String createTicket(Ticket ticket) {
+    @Override
+    public String create(Ticket ticket) {
         try {
             String validationError = validateTicket(ticket);
             if (validationError != null) {
@@ -123,7 +127,13 @@ public class TicketService {
 
     }
 
-    public String deleteTicket(Integer id) {
+    @Override
+    public String update(Ticket obj) {
+        return null;
+    }
+
+
+    public String deleteById(Integer id) {
         try {
             if (id <= 0) {
                 return "Invalid id, please enter a positive number";
@@ -137,7 +147,7 @@ public class TicketService {
             con.setAutoCommit(false);
 
             ticketRepository.deleteTicketPromoRelations(id);
-            ticketRepository.delete(id);
+            ticketRepository.deleteById(id, "ticket");
             con.commit();
 
             return String.format("Ticket with id: %d successfully deleted!", id);

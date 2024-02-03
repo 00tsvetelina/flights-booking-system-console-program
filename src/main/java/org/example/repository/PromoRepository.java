@@ -21,10 +21,7 @@ public class PromoRepository implements Repository<Promo> {
 
             List<Promo> promos = new ArrayList<>();
             while (response.next()) {
-                Integer id = response.getInt("id");
-                String promoCode = response.getString("promo_code");
-
-                Promo promo = responseGetFields(response, id, promoCode);
+                Promo promo = responseGetFields(response);
                 promos.add(promo);
             }
             return promos;
@@ -38,15 +35,13 @@ public class PromoRepository implements Repository<Promo> {
         String query = "SELECT * FROM promo WHERE id=?";
         try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             statement.setInt(1, id);
-            if (statement.executeQuery() == null) {
+            ResultSet response = statement.executeQuery();
+            if (response == null) {
                 return null;
             }
 
-            ResultSet response = statement.executeQuery();
             if (response.next()) {
-                String promoCode = response.getString("promo_code");
-          
-                return responseGetFields(response, id, promoCode);
+                return responseGetFields(response);
             }
         } catch (SQLException ex) {
             return null;
@@ -60,18 +55,17 @@ public class PromoRepository implements Repository<Promo> {
                 " JOIN promo_ticket ON ticket.id=promo_ticket.ticket_id " +
                 "JOIN promo ON promo_ticket.promo_id=promo.id " +
                 "WHERE ticket.id=?";
+
         try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             statement.setInt(1, ticketId);
-            if (statement.executeQuery() == null) {
+            ResultSet response = statement.executeQuery();
+            if (response == null) {
                 return null;
             }
-            ResultSet response = statement.executeQuery();
+
             List<Promo> promos = new ArrayList<>();
             while(response.next()) {
-                Integer id = response.getInt("id");
-                String promoCode = response.getString("promo_code");
-
-                Promo promo = responseGetFields(response, id, promoCode);
+                Promo promo = responseGetFields(response);
                 promos.add(promo);
             }
             return promos;
@@ -85,15 +79,13 @@ public class PromoRepository implements Repository<Promo> {
         String query = "SELECT * FROM promo WHERE promo_code=?";
         try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             statement.setString(1, promoCode);
-            if (statement.executeQuery() == null) {
+            ResultSet response = statement.executeQuery();
+            if (response == null) {
                 return null;
             }
 
-            ResultSet response = statement.executeQuery();
             if (response.next()) {
-                Integer id = response.getInt("id");
-                
-                return responseGetFields(response, id, promoCode);
+                return responseGetFields(response);
             }
 
         } catch (SQLException ex) {
@@ -134,35 +126,21 @@ public class PromoRepository implements Repository<Promo> {
         try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             statementSetFields(statement, promo);
             statement.setInt(6, promo.getId());
+
             if (statement.executeUpdate() <= 0) {
                 return null;
             }
 
-            if (statement.executeUpdate() > 0) {
-                System.out.println("in " + promo);
-
-                return promo;
-            }
+            return promo;
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
             return null;
         }
-        System.out.println("out");
-
-        return null;
     }
 
     @Override
-    public void delete(Integer id) {
-        String query = "DELETE FROM promo WHERE id=?";
-        try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
-            statement.setInt(1, id);
-            if (statement.executeUpdate() < 0) {
-                System.out.printf("Error while deleting promo with id: %d", id);
-            }
-        } catch (SQLException ex) {
-            System.out.printf("Error occurred while deleting promo with id: %d", id);
-        }
+    public void deleteById(Integer id, String object) {
+        Repository.super.deleteById(id, object);
     }
 
     public void deletePromoTicketRelations(Integer promoId) {
@@ -178,9 +156,12 @@ public class PromoRepository implements Repository<Promo> {
         }
     }
 
-    private Promo responseGetFields(ResultSet response, Integer id, String promoCode) {
+
+
+    private Promo responseGetFields(ResultSet response) {
         try {
-            
+            Integer id = response.getInt("id");
+            String promoCode = response.getString("promo_code");
             Integer percentDiscount = response.getInt("percent_discount");
             LocalDate durationEnd = response.getDate("duration_end").toLocalDate();
             Boolean singleUse = response.getBoolean("single_use");
@@ -191,6 +172,7 @@ public class PromoRepository implements Repository<Promo> {
             return null;
         }
     }
+
 
     private void statementSetFields(PreparedStatement statement, Promo promo) {
         try {

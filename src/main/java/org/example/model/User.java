@@ -1,6 +1,6 @@
 package org.example.model;
 
-public class User extends CommonIdClass{
+public class User extends BaseId {
 
     private String userName;
     private String email;
@@ -9,7 +9,7 @@ public class User extends CommonIdClass{
     private String role;
 
     public User(Integer id, String userName, String email, String password, Boolean isEnabled, String role) {
-        this.id = id;
+        super(id);
         this.userName = userName;
         this.email = email;
         this.password = password;
@@ -17,21 +17,8 @@ public class User extends CommonIdClass{
         this.role = role;
     }
 
-    public User(Integer id, Boolean isEnabled) {
-        this.id = id;
-        this.isEnabled = isEnabled;
-    }
-
     public User(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
+        super(id);
     }
 
     public String getUserName() {
@@ -77,7 +64,7 @@ public class User extends CommonIdClass{
     @Override
     public String toString() {
         return "User {" +
-                "id: " + id +
+                "id: " + getId() +
                 ", userName: " + userName + '\'' +
                 ", enable status: " + isEnabled +
                 ", role: " + role +

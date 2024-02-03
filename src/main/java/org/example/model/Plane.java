@@ -1,26 +1,18 @@
 package org.example.model;
 
-public class Plane extends CommonIdClass {
+public class Plane extends BaseId {
 
     private String model;
     private Integer seatsCount;
 
     public Plane(Integer id, String model, Integer seatsCount) {
-        this.id = id;
+        super(id);
         this.model = model;
         this.seatsCount = seatsCount;
     }
 
     public Plane(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
+        super(id);
     }
 
     public String getModel() {
@@ -41,8 +33,9 @@ public class Plane extends CommonIdClass {
 
     @Override
     public String toString() {
-        return "Plane {id: " + id +
+        return "Plane {id: " + getId() +
                 ", model: " + model + '\'' +
+                ", seats: " + seatsCount +
                 '}';
     }
 

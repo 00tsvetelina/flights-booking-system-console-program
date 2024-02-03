@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
-public class FlightService {
+public class FlightService implements Service<Flight> {
 
     private final FlightRepository flightRepository;
     private final TicketRepository ticketRepository;
@@ -26,7 +26,8 @@ public class FlightService {
         this.planeRepository = planeRepository;
     }
 
-    public String getAllFlights() {
+    @Override
+    public String getAll() {
         List<Flight> flights = flightRepository.getAll();
         if (flights.isEmpty()) {
             return "No flights found, sorry!";
@@ -46,7 +47,8 @@ public class FlightService {
         return sb.toString();
     }
 
-    public String getFlightById(Integer id) {
+    @Override
+    public String getById(Integer id) {
         if (id <= 0) {
             return "Invalid id, please enter a positive number";
         }
@@ -61,7 +63,8 @@ public class FlightService {
         return String.format("Flight with id: %d found - %s", id, flight);
     }
 
-    public String createFlight(Flight flight) {
+    @Override
+    public String create(Flight flight) {
         String validationError = validateFlight(flight);
         if (validationError != null) {
             return validationError;
@@ -72,7 +75,8 @@ public class FlightService {
         return "Flight created successfully";
     }
 
-    public String updateFlight(Flight flight) {
+    @Override
+    public String update(Flight flight) {
         if (flight.getId() == null) {
             return "Flight id cannot be null";
         }
@@ -87,7 +91,8 @@ public class FlightService {
         return "Flight updated successfully";
     }
 
-    public String deleteFlight(Integer id) {
+    @Override
+    public String deleteById(Integer id) {
         try {
             if (id <= 0) {
                 return "Invalid id, please enter a positive number";
@@ -101,7 +106,7 @@ public class FlightService {
             con.setAutoCommit(false);
 
             ticketRepository.deleteTicketByFlightId(id);
-            flightRepository.delete(id);
+            flightRepository.deleteById(id, "flight");
             con.commit();
 
             return String.format("Flight with id: %d successfully deleted!", id);
@@ -110,7 +115,6 @@ public class FlightService {
         }
 
     }
-
     private String validateFlight(Flight flight) {
         if (flight.getPlane().getId() <= 0 || flight.getPlane() == null) {
             return "Invalid plane id, please enter a valid one";

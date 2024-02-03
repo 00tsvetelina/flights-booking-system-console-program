@@ -2,7 +2,7 @@ package org.example.model;
 
 import java.util.List;
 
-public class Ticket extends CommonIdClass{
+public class Ticket extends BaseId {
 
     private Flight flight;
     private Integer seat;
@@ -10,20 +10,11 @@ public class Ticket extends CommonIdClass{
     private List<Promo> promos;
 
     public Ticket(Integer id, Flight flight, Integer seat, User user, List<Promo> promos) {
-        this.id = id;
+        super(id);
         this.flight = flight;
         this.seat = seat;
         this.user = user;
         this.promos = promos;
-    }
-
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
     }
 
     public Flight getFlight() {
@@ -60,7 +51,7 @@ public class Ticket extends CommonIdClass{
 
     @Override
     public String toString() {
-        return "Ticket {id: " + id +
+        return "Ticket {id: " + getId() +
                 ", origin: " + flight.getOrigin() +
                 ", destination: " + flight.getDestination() +
                 ", departure date: " + flight.getDepartureTime() +

@@ -25,9 +25,7 @@ public class PlaneRepository implements Repository<Plane> {
 
             List<Plane> planes = new ArrayList<>();
             while (response.next()) {
-                Integer id = response.getInt("id");
-
-                Plane plane = responseGetFields(response, id);
+                Plane plane = responseGetFields(response);
                 planes.add(plane);
             }
 
@@ -42,13 +40,13 @@ public class PlaneRepository implements Repository<Plane> {
         String query = "SELECT * FROM plane WHERE id=?";
         try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             statement.setInt(1, id);
-            if (statement.executeQuery() == null) {
+            ResultSet response = statement.executeQuery();
+            if (response == null) {
                 return null;
             }
 
-            ResultSet response = statement.executeQuery();
             if (response.next()) {
-                return responseGetFields(response, id);
+                return responseGetFields(response);
             }
         } catch (SQLException e) {
             return null;
@@ -89,33 +87,21 @@ public class PlaneRepository implements Repository<Plane> {
             if (statement.executeUpdate() <= 0) {
                 return null;
             }
+            return plane;
 
-            if(statement.executeUpdate() > 0) {
-                return plane;
-            }
         } catch (SQLException e) {
             return null;
         }
-
-        return null;
     }
 
     @Override
-    public void delete(Integer id) {
-        String query = "DELETE FROM plane WHERE id=?";
-        try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
-            statement.setInt(1, id);
-            if(statement.executeUpdate() < 0) {
-                System.out.printf("Error while deleting plane with id: %d", id);
-            }
-        } catch (SQLException e) {
-            System.out.printf("Error occurred while deleting plane with id: %d", id);
-        }
+    public void deleteById(Integer id, String object) {
+        Repository.super.deleteById(id, object);
     }
 
-
-    private Plane responseGetFields(ResultSet response, Integer id) {
+    private Plane responseGetFields(ResultSet response) {
         try {
+            Integer id = response.getInt("id");
             String model = response.getString("model");
             Integer seatsCount = response.getInt("seats_count");
 

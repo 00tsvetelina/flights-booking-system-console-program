@@ -2,7 +2,7 @@ package org.example.model;
 
 import java.time.LocalDate;
 
-public class Promo extends CommonIdClass {
+public class Promo extends BaseId {
 
     private String promoCode;
     private Integer percentDiscount;
@@ -13,24 +13,12 @@ public class Promo extends CommonIdClass {
 
     public Promo(Integer id, String promoCode, Integer percentDiscount,
                  LocalDate durationEnd, Boolean singleUse, Boolean isUsed) {
-        this.id = id;
+        super(id);
         this.promoCode = promoCode;
         this.percentDiscount = percentDiscount;
         this.durationEnd = durationEnd;
         this.singleUse = singleUse;
         this.isUsed = isUsed;
-    }
-
-    public Promo(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
     }
 
     public String getPromoCode() {
@@ -76,7 +64,7 @@ public class Promo extends CommonIdClass {
     @Override
     public String toString() {
         return "Promo {" +
-                "id: " + id +
+                "id: " + getId() +
                 ", code: " + promoCode + '\'' +
                 ", discount: " + percentDiscount + "% " +
                 ", duration end: " + durationEnd +

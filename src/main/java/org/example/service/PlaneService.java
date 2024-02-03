@@ -9,7 +9,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-public class PlaneService {
+public class PlaneService implements Service<Plane> {
 
     private final PlaneRepository planeRepository;
     private final FlightRepository flightRepository;
@@ -19,7 +19,8 @@ public class PlaneService {
         this.flightRepository = flightRepository;
     }
 
-    public String getAllPlanes() {
+    @Override
+    public String getAll() {
         List<Plane> planes = planeRepository.getAll();
         if (planes.isEmpty()) {
             return "No planes found, sorry!";
@@ -34,7 +35,8 @@ public class PlaneService {
         return sb.toString();
     }
 
-    public String getPlaneById(Integer id) {
+    @Override
+    public String getById(Integer id) {
         if (id <= 0) {
             return "Invalid id, please enter a positive number";
         }
@@ -47,7 +49,8 @@ public class PlaneService {
         return String.format("Plane with id: %d found - %s", id, plane);
     }
 
-    public String createPlane(Plane plane) {
+    @Override
+    public String create(Plane plane) {
         String validationError = validatePlane(plane);
         if (validationError != null) {
             return validationError;
@@ -61,7 +64,8 @@ public class PlaneService {
         return "Plane created successfully";
     }
 
-    public String updatePlane(Plane plane) {
+    @Override
+    public String update(Plane plane) {
         if (plane.getId() == null) {
             return "Plane id cannot be null";
         }
@@ -79,7 +83,8 @@ public class PlaneService {
         return "Plane updated successfully";
     }
 
-    public String deletePlane(Integer id) {
+    @Override
+    public String deleteById(Integer id) {
         try {
             if (id <= 0) {
                 return "Invalid id, please enter a positive number";
@@ -93,7 +98,7 @@ public class PlaneService {
             con.setAutoCommit(false);
 
             flightRepository.deleteFlightsByPlaneId(id);
-            planeRepository.delete(id);
+            planeRepository.deleteById(id, "plane");
 
             con.commit();
 

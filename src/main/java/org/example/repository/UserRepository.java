@@ -23,8 +23,7 @@ public class UserRepository implements Repository<User> {
 
             List<User> users = new ArrayList<>();
             while (response.next()) {
-                Integer id = response.getInt("id");
-                User user = responseGetFields(response, id);
+                User user = responseGetFields(response);
                 users.add(user);
             }
 
@@ -39,13 +38,13 @@ public class UserRepository implements Repository<User> {
         String query = "SELECT * FROM user WHERE id=?";
         try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             statement.setInt(1, id);
-            if (statement.executeQuery() == null) {
+            ResultSet response = statement.executeQuery();
+            if (response == null) {
                 return null;
             }
 
-            ResultSet response = statement.executeQuery();
             if (response.next()) {
-                return responseGetFields(response, id);
+                return responseGetFields(response);
             }
 
         } catch (SQLException ex) {
@@ -59,14 +58,13 @@ public class UserRepository implements Repository<User> {
         String query = "SELECT * FROM user WHERE user_name=?";
         try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             statement.setString(1, userName);
-            if (statement.executeQuery() == null) {
+            ResultSet response = statement.executeQuery();
+            if (response == null) {
                 return null;
             }
 
-            ResultSet response = statement.executeQuery();
             if (response.next()) {
-                Integer id = response.getInt("id");
-                return responseGetFields(response, id);
+                return responseGetFields(response);
             }
         } catch (SQLException ex) {
             return null;
@@ -79,14 +77,13 @@ public class UserRepository implements Repository<User> {
         String query = "SELECT * FROM user WHERE email=?";
         try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             statement.setString(1, email);
-            if (statement.executeQuery() == null) {
+            ResultSet response = statement.executeQuery();
+            if (response == null) {
                 return null;
             }
 
-            ResultSet response = statement.executeQuery();
             if (response.next()) {
-                Integer id = response.getInt("id");
-                return responseGetFields(response, id);
+                return responseGetFields(response);
             }
         } catch (SQLException ex) {
             return null;
@@ -146,14 +143,13 @@ public class UserRepository implements Repository<User> {
         try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             statement.setString(1, userName);
             statement.setString(2, encryptPassword(password));
-            if (statement.executeQuery() == null) {
+            ResultSet response = statement.executeQuery();
+            if (response == null) {
                 return null;
             }
 
-            ResultSet response = statement.executeQuery();
             if (response.next()) {
-                Integer id = response.getInt("id");
-                return responseGetFields(response, id);
+                return responseGetFields(response);
             }
         } catch (SQLException ex) {
             return null;
@@ -176,16 +172,9 @@ public class UserRepository implements Repository<User> {
         }
     }
 
-    public void delete (Integer id) {
-        String query = "DELETE FROM user WHERE id=?";
-        try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
-            statement.setInt(1, id);
-            if (statement.executeUpdate() < 0) {
-                System.out.printf("Error while deleting user with id: %d", id);
-            }
-        } catch (SQLException ex) {
-            System.out.printf("Error occurred while deleting user with id: %d", id);
-        }
+    @Override
+    public void deleteById(Integer id, String object) {
+        Repository.super.deleteById(id, object);
     }
 
     public void deleteTicketsByUserId(Integer id){
@@ -200,8 +189,9 @@ public class UserRepository implements Repository<User> {
         }
     }
 
-    private User responseGetFields(ResultSet response, Integer id) {
+    public User responseGetFields(ResultSet response) {
         try {
+            Integer id = response.getInt("id");
             String userName = response.getString("user_name");
             String email = response.getString("email");
             String encryptedPassword = response.getString("password");

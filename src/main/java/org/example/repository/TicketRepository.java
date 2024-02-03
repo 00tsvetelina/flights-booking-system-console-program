@@ -28,8 +28,7 @@ public class TicketRepository implements Repository<Ticket> {
 
             List<Ticket> tickets = new ArrayList<>();
             while (response.next()){
-                Integer id = response.getInt("id");
-                Ticket ticket = responseGetFields(response, id);
+                Ticket ticket = responseGetFields(response);
                 tickets.add(ticket);
             }
             return tickets;
@@ -43,16 +42,14 @@ public class TicketRepository implements Repository<Ticket> {
         String query = "SELECT * FROM ticket WHERE user_id=?";
         try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             statement.setInt(1, userId);
-            if (statement.executeQuery() == null) {
+            ResultSet response = statement.executeQuery();
+            if (response == null) {
                 return null;
             }
 
-            ResultSet response = statement.executeQuery();
             List<Ticket> tickets = new ArrayList<>();
             while (response.next()){
-                Integer ticketId = response.getInt("id");
-                
-                Ticket ticket = responseGetFields(response, ticketId);
+                Ticket ticket = responseGetFields(response);
                 tickets.add(ticket);
             }
 
@@ -67,14 +64,14 @@ public class TicketRepository implements Repository<Ticket> {
     public Ticket getById(Integer id) {
         String query = "SELECT * FROM ticket WHERE id=?";
         try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
-            statement.setInt(1,id);
-            if (statement.executeQuery() == null) {
+            statement.setInt(1, id);
+            ResultSet response = statement.executeQuery();
+            if (response == null) {
                 return null;
             }
 
-            ResultSet response = statement.executeQuery();
             if (response.next()) {
-                return responseGetFields(response, id);
+                return responseGetFields(response);
             }
         } catch (SQLException ex) {
             return null;
@@ -87,10 +84,7 @@ public class TicketRepository implements Repository<Ticket> {
     public Ticket create(Ticket ticket) {
         String query = "INSERT INTO ticket(flight_id, user_id, seat) VALUES (?,?,?)";
         try (PreparedStatement statement = DBUtil.getStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            statement.setInt(1, ticket.getFlight().getId());
-            statement.setInt(2, ticket.getUser().getId());
-            statement.setInt(3, ticket.getSeat());
-
+            statementSetFields(statement, ticket);
             if (statement.executeUpdate() <= 0) {
                 return null;
             }
@@ -115,19 +109,11 @@ public class TicketRepository implements Repository<Ticket> {
     }
 
     @Override
-    public void delete(Integer id) {
-         String query = "DELETE FROM ticket WHERE id=?";
-         try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
-            statement.setInt(1, id);
-            if (statement.executeUpdate() < 0) {
-                System.out.printf("Error while deleting ticket with id: %d", id);
-            }
-        } catch (SQLException ex) {
-            System.out.printf("Error occurred while deleting ticket with id: %d", id);
-        }
-     }
+    public void deleteById(Integer id, String object) {
+        Repository.super.deleteById(id, object);
+    }
 
-     public void deleteTicketByFlightId(Integer id) {
+    public void deleteTicketByFlightId(Integer id) {
          String query = "DELETE FROM ticket WHERE flight_id=?";
          try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             statement.setInt(1, id);
@@ -176,8 +162,9 @@ public class TicketRepository implements Repository<Ticket> {
         }
      }
 
-    private Ticket responseGetFields(ResultSet response, Integer id) {
+    private Ticket responseGetFields(ResultSet response) {
         try {
+            Integer id = response.getInt("id");
             Integer flightId = response.getInt("flight_id");
             Integer userId = response.getInt("user_id");
             Integer seat = response.getInt("seat");
@@ -186,5 +173,16 @@ public class TicketRepository implements Repository<Ticket> {
         } catch (SQLException ex) {
             return null;
         }
+    }
+
+    private void statementSetFields(PreparedStatement statement, Ticket ticket) {
+        try {
+            statement.setInt(1, ticket.getFlight().getId());
+            statement.setInt(2, ticket.getUser().getId());
+            statement.setInt(3, ticket.getSeat());
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
+
     }
 }

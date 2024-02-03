@@ -5,13 +5,16 @@ import org.example.service.UserService;
 
 import java.util.Scanner;
 
-public class UserDashboard {
+public class UserDashboard implements Dashboard {
 
     private final UserService userService;
     private final PlaneDashboard planeDashboard;
     private final FlightDashboard flightDashboard;
     private final PromoDashboard promoDashboard;
     private final TicketDashboard ticketDashboard;
+    private final Scanner scannerInt;
+    private final Scanner scannerString;
+    private final Scanner scannerBoolean;
 
     public UserDashboard(UserService userService, PlaneDashboard planeDashboard, FlightDashboard flightDashboard,
                          PromoDashboard promoDashboard, TicketDashboard ticketDashboard) {
@@ -20,19 +23,89 @@ public class UserDashboard {
         this.flightDashboard = flightDashboard;
         this.promoDashboard = promoDashboard;
         this.ticketDashboard = ticketDashboard;
+        this.scannerInt = new Scanner(System.in);
+        this.scannerString = new Scanner(System.in);
+        this.scannerBoolean = new Scanner(System.in);
+    }
+
+    @Override
+    public void printMenu() {
+        boolean run = true;
+
+        while (run) {
+            printOptions();
+
+            int choice = scannerInt.nextInt();
+
+            switch (choice) {
+                case 1:
+                    login();
+                    break;
+
+                case 2:
+                    register();
+                    break;
+
+                case 3:
+                    System.out.println("Exiting program...");
+                    run = false;
+                    break;
+
+                default:
+                    System.out.println("Please enter a valid choice of number");
+                    break;
+            }
+        }
+    }
+
+    private void printOptions() {
+        System.out.println("\nWelcome to Flight Management System!\n");
+        System.out.println("Please Enter Your Choice!\n");
+        System.out.println("1. Login");
+        System.out.println("2. Register");
+        System.out.println("3. Exit");
+    }
+
+    private void login() {
+        System.out.println("Please enter your username");
+        String choiceUsername = scannerString.nextLine();
+
+        System.out.println("Please enter your password");
+        String choicePassword = scannerString.nextLine();
+
+        User user = userService.loginUser(choiceUsername, choicePassword);
+        if (user == null) {
+            return;
+        }
+
+        if (user.getRole().equals("admin")) {
+            printAdminMenu();
+        } else {
+            printUserMenu(user);
+        }
+    }
+
+    private void register() {
+        System.out.println("Please enter a username");
+        String choiceNewUsername = scannerString.nextLine();
+
+        System.out.println("Please enter an email");
+        String choiceNewEmail = scannerString.nextLine();
+
+        System.out.println("Please enter a password");
+        String choiceNewPassword = scannerString.nextLine();
+
+        String registration = userService.create(new User(null, choiceNewUsername, choiceNewEmail,
+                choiceNewPassword, true, "user"));
+        System.out.println(registration);
     }
 
     public void printUserMenu(User user) {
 
         boolean run = true;
-        Scanner scannerInt = new Scanner(System.in);
-        Scanner scannerString = new Scanner(System.in);
 
         while (run) {
-            System.out.println("\nPlease Enter Your Choice!\n");
-            System.out.println("1. Manage Tickets");
-            System.out.println("2. Delete account");
-            System.out.println("3. Logout");
+            printUserOptions();
 
             int choice = scannerInt.nextInt();
 
@@ -47,9 +120,8 @@ public class UserDashboard {
                     String choiceDelete = scannerString.nextLine();
 
                     if (choiceDelete.equals("yes")) {
-                        userService.deleteUser(user.getId());
+                        userService.deleteById(user.getId());
                         run = false;
-
                         break;
                     }
 
@@ -58,70 +130,79 @@ public class UserDashboard {
                 case 3:
                     System.out.println("Logging out...");
                     run = false;
-
                     break;
 
                 default:
                     System.out.println("Please enter a valid choice of number");
-
                     break;
             }
         }
     }
 
-    public void printAdminMenu(User user) {
+    public void printAdminMenu() {
         boolean run = true;
-        Scanner scannerInt = new Scanner(System.in);
-        Scanner scannerBoolean = new Scanner(System.in);
 
         while (run) {
-            System.out.println("\nPlease Enter Your Choice!\n");
-            System.out.println("1. Manage Planes");
-            System.out.println("2. Manage Flights");
-            System.out.println("3. Manage Promos");
-            System.out.println("4. Enable or Disable User");
-            System.out.println("5. Logout");
+            printAdminOptions();
 
             int choice = scannerInt.nextInt();
 
             switch (choice) {
                 case 1:
-                    planeDashboard.printPlaneMenu();
+                    planeDashboard.printMenu();
                     break;
 
                 case 2:
-                    flightDashboard.printFlightMenu();
+                    flightDashboard.printMenu();
                     break;
 
                 case 3:
-                    promoDashboard.printPromoMenu();
+                    promoDashboard.printMenu();
                     break;
 
                 case 4:
-                    String listOfUsers = userService.getAllUsers();
-                    System.out.println(listOfUsers);
-                    System.out.println("");
-                    System.out.println("Please enter the id of the user, whose status you would like to change");
-                    Integer choiceUserId = scannerInt.nextInt();
-
-                    String choiceUser = userService.getUserById(choiceUserId);
-                    System.out.println(choiceUser);
-                    System.out.println("Enter *true* if you would like to enable the user");
-                    System.out.println("Enter *false* if you would like to disable the user");
-                    Boolean choiceStatus = scannerBoolean.nextBoolean();
-
-                    String userNewStatus = userService.setDisableOrEnableUser(new User(choiceUserId), choiceStatus);
-                    System.out.println(userNewStatus);
-
+                    enableOrDisableUser();
                     break;
 
                 case 5:
                     System.out.println("Logging out...");
-
                     run = false;
-
                     break;
             }
         }
     }
+
+    private void printUserOptions() {
+        System.out.println("\nPlease Enter Your Choice!\n");
+        System.out.println("1. Manage Tickets");
+        System.out.println("2. Delete account");
+        System.out.println("3. Logout");
+    }
+
+    private void printAdminOptions() {
+        System.out.println("\nPlease Enter Your Choice!\n");
+        System.out.println("1. Manage Planes");
+        System.out.println("2. Manage Flights");
+        System.out.println("3. Manage Promos");
+        System.out.println("4. Enable or Disable User");
+        System.out.println("5. Logout");
+    }
+
+    private void enableOrDisableUser() {
+        String listOfUsers = userService.getAll();
+        System.out.println(listOfUsers);
+        System.out.println();
+        System.out.println("Please enter the id of the user, whose status you would like to change");
+        Integer choiceUserId = scannerInt.nextInt();
+
+        String choiceUser = userService.getById(choiceUserId);
+        System.out.println(choiceUser);
+        System.out.println("Enter *true* if you would like to enable the user");
+        System.out.println("Enter *false* if you would like to disable the user");
+        Boolean choiceStatus = scannerBoolean.nextBoolean();
+
+        String userNewStatus = userService.setDisableOrEnableUser(choiceUserId, choiceStatus);
+        System.out.println(userNewStatus);
+    }
+
 }
