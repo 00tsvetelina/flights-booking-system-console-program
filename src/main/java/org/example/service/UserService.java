@@ -124,7 +124,7 @@ public class UserService implements Service<User> {
                 userRepository.deleteTicketsByUserId(id);
             }
 
-            userRepository.deleteById(id, "user");
+            userRepository.deleteById(id);
             con.commit();
 
             return String.format("User with id: %d successfully deleted!", id);

@@ -88,7 +88,7 @@ public class PromoService implements Service<Promo>{
             con.setAutoCommit(false);
 
             promoRepository.deletePromoTicketRelations(id);
-            promoRepository.deleteById(id, "promo");
+            promoRepository.deleteById(id);
             con.commit();
 
             return String.format("Promo with id: %d successfully deleted!", id);

@@ -20,84 +20,27 @@ public class TicketRepository implements Repository<Ticket> {
     @Override
     public List<Ticket> getAll() {
         String query = "SELECT * FROM ticket";
-        try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
-            ResultSet response = statement.executeQuery();
-            if (response == null) {
-                return null;
-            }
-
-            List<Ticket> tickets = new ArrayList<>();
-            while (response.next()){
-                Ticket ticket = responseGetFields(response);
-                tickets.add(ticket);
-            }
-            return tickets;
-        } catch (SQLException ex) {
-            return null;
-        }
-
+        return Repository.super.executeQuery(query, this::mapToTicketList);
     }
 
     public List<Ticket> getTicketsByUserId(Integer userId) {
-        String query = "SELECT * FROM ticket WHERE user_id=?";
-        try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
-            statement.setInt(1, userId);
-            ResultSet response = statement.executeQuery();
-            if (response == null) {
-                return null;
-            }
-
-            List<Ticket> tickets = new ArrayList<>();
-            while (response.next()){
-                Ticket ticket = responseGetFields(response);
-                tickets.add(ticket);
-            }
-
-            return tickets;
-        } catch (SQLException ex) {
-            return null;
-        }
-
+        String query = String.format("SELECT * FROM ticket WHERE user_id=%d", userId);
+        return Repository.super.executeQuery(query, this::mapToTicketList);
     }
 
     @Override
     public Ticket getById(Integer id) {
-        String query = "SELECT * FROM ticket WHERE id=?";
-        try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
-            statement.setInt(1, id);
-            ResultSet response = statement.executeQuery();
-            if (response == null) {
-                return null;
-            }
-
-            if (response.next()) {
-                return responseGetFields(response);
-            }
-        } catch (SQLException ex) {
-            return null;
-        }
-
-        return null;
+        String query = String.format("SELECT * FROM ticket WHERE id=%d", id);
+        return Repository.super.executeQuery(query, this::mapToTicketList).get(0);
     }
 
     @Override
     public Ticket create(Ticket ticket) {
         String query = "INSERT INTO ticket(flight_id, user_id, seat) VALUES (?,?,?)";
-        try (PreparedStatement statement = DBUtil.getStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            statementSetFields(statement, ticket);
-            if (statement.executeUpdate() <= 0) {
-                return null;
-            }
-
-            ResultSet response = statement.getGeneratedKeys();
-            if (response.next()) {
-                Integer id = response.getInt(1);
-                ticket.setId(id);
-
-                return ticket;
-            }
-        } catch (SQLException ex) {
-            return null;
+        int generatedId = Repository.super.executeUpdate(query, this::mapToStatementFields, ticket);
+        if (generatedId > 0) {
+            ticket.setId(generatedId);
+            return ticket;
         }
 
         return null;
@@ -109,18 +52,20 @@ public class TicketRepository implements Repository<Ticket> {
     }
 
     @Override
-    public void deleteById(Integer id, String object) {
-        Repository.super.deleteById(id, object);
+    public void deleteById(Integer id) {
+        String query = "DELETE FROM ticket WHERE id=?";
+        int generatedId = Repository.super.executeDelete(query, id);
+
+        if (generatedId < 0) {
+            System.out.print("Error occurred while performing delete");
+        }
     }
 
     public void deleteTicketByFlightId(Integer id) {
-         String query = "DELETE FROM ticket WHERE flight_id=?";
-         try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
-            statement.setInt(1, id);
-            if (statement.executeUpdate() < 0) {
-                System.out.printf("Error while deleting ticket with flight id: %d", id);
-            }
-        } catch (SQLException ex) {
+        String query = "DELETE FROM ticket WHERE flight_id=?";
+        int generatedId = Repository.super.executeDelete(query, id);
+
+        if (generatedId < 0) {
             System.out.printf("Error occurred while deleting ticket with flight id: %d", id);
         }
      }
@@ -152,22 +97,19 @@ public class TicketRepository implements Repository<Ticket> {
 
      public void deleteTicketPromoRelations(Integer ticketId) {
          String query = "DELETE FROM promo_ticket WHERE ticket_id=?";
-         try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
-            statement.setInt(1, ticketId);
-            if (statement.executeUpdate() < 0) {
-                System.out.printf("Error occurred while deleting relation with ticket id: %d", ticketId);
-            }
-        } catch (SQLException ex) {
-            System.out.printf("Error occurred while deleting relation with ticket id: %d", ticketId);
-        }
+         int generatedId = Repository.super.executeDelete(query, ticketId);
+
+         if (generatedId < 0) {
+             System.out.printf("Error occurred while deleting relation with ticket id: %d", ticketId);
+         }
      }
 
-    private Ticket responseGetFields(ResultSet response) {
+    private Ticket mapToResultSet(ResultSet resultSet) {
         try {
-            Integer id = response.getInt("id");
-            Integer flightId = response.getInt("flight_id");
-            Integer userId = response.getInt("user_id");
-            Integer seat = response.getInt("seat");
+            Integer id = resultSet.getInt("id");
+            Integer flightId = resultSet.getInt("flight_id");
+            Integer userId = resultSet.getInt("user_id");
+            Integer seat = resultSet.getInt("seat");
 
             return new Ticket(id, new Flight(flightId), seat, new User(userId), null);
         } catch (SQLException ex) {
@@ -175,7 +117,7 @@ public class TicketRepository implements Repository<Ticket> {
         }
     }
 
-    private void statementSetFields(PreparedStatement statement, Ticket ticket) {
+    private void mapToStatementFields(PreparedStatement statement, Ticket ticket) {
         try {
             statement.setInt(1, ticket.getFlight().getId());
             statement.setInt(2, ticket.getUser().getId());
@@ -183,6 +125,19 @@ public class TicketRepository implements Repository<Ticket> {
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
         }
+    }
 
+    private List<Ticket> mapToTicketList(ResultSet resultSet) {
+        try {
+            List<Ticket> tickets = new ArrayList<>();
+            while (resultSet.next()) {
+                Ticket ticket = mapToResultSet(resultSet);
+                tickets.add(ticket);
+            }
+            return tickets;
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+            return null;
+        }
     }
 }

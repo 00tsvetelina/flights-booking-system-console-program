@@ -98,7 +98,7 @@ public class PlaneService implements Service<Plane> {
             con.setAutoCommit(false);
 
             flightRepository.deleteFlightsByPlaneId(id);
-            planeRepository.deleteById(id, "plane");
+            planeRepository.deleteById(id);
 
             con.commit();
 

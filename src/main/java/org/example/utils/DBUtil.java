@@ -23,7 +23,7 @@ public final class DBUtil {
             } catch (SQLException e) {
                 System.out.println("Problem with closing the established connection has occurred" + e.getMessage());;
             }
-            System.exit(0);
+//            System.exit(0);
         }
 
         return instance;

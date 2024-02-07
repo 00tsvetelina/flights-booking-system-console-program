@@ -3,7 +3,10 @@ package org.example.repository;
 import org.example.model.Promo;
 import org.example.utils.DBUtil;
 
-import java.sql.*;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,70 +16,26 @@ public class PromoRepository implements Repository<Promo> {
     @Override
     public List<Promo> getAll() {
         String query = "SELECT * FROM promo";
-        try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
-            ResultSet response = statement.executeQuery();
-            if (response == null) {
-                return null;
-            }
-
-            List<Promo> promos = new ArrayList<>();
-            while (response.next()) {
-                Promo promo = responseGetFields(response);
-                promos.add(promo);
-            }
-            return promos;
-        } catch (SQLException ex) {
-            return null;
-        }
+        return Repository.super.executeQuery(query, this::mapToPromoList);
     }
 
     @Override
     public Promo getById(Integer id){
-        String query = "SELECT * FROM promo WHERE id=?";
-        try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
-            statement.setInt(1, id);
-            ResultSet response = statement.executeQuery();
-            if (response == null) {
-                return null;
-            }
-
-            if (response.next()) {
-                return responseGetFields(response);
-            }
-        } catch (SQLException ex) {
-            return null;
-        }
-
-        return null;
+        String query = String.format("SELECT * FROM promo WHERE id=%d", id);
+        return Repository.super.executeQuery(query, this::mapToPromoList).get(0);
     }
 
     public List<Promo> getPromosByTicketId(Integer ticketId) {
-        String query = "SELECT * FROM ticket" +
+        String query = String.format("SELECT * FROM ticket" +
                 " JOIN promo_ticket ON ticket.id=promo_ticket.ticket_id " +
                 "JOIN promo ON promo_ticket.promo_id=promo.id " +
-                "WHERE ticket.id=?";
-
-        try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
-            statement.setInt(1, ticketId);
-            ResultSet response = statement.executeQuery();
-            if (response == null) {
-                return null;
-            }
-
-            List<Promo> promos = new ArrayList<>();
-            while(response.next()) {
-                Promo promo = responseGetFields(response);
-                promos.add(promo);
-            }
-            return promos;
-
-        } catch (SQLException ex) {
-            return null;
-        }
+                "WHERE ticket.id=%d", ticketId);
+        return Repository.super.executeQuery(query, this::mapToPromoList);
     }
 
     public Promo getPromoByPromoCode(String promoCode) {
         String query = "SELECT * FROM promo WHERE promo_code=?";
+
         try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
             statement.setString(1, promoCode);
             ResultSet response = statement.executeQuery();
@@ -85,7 +44,7 @@ public class PromoRepository implements Repository<Promo> {
             }
 
             if (response.next()) {
-                return responseGetFields(response);
+                return mapToResultSet(response);
             }
 
         } catch (SQLException ex) {
@@ -99,21 +58,10 @@ public class PromoRepository implements Repository<Promo> {
     public Promo create(Promo promo) {
         String query = "INSERT INTO promo(promo_code, percent_discount, duration_end, single_use, is_used)" +
                 " VALUES (?,?,?,?,?)";
-        try (PreparedStatement statement = DBUtil.getStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            statementSetFields(statement, promo);
-            if (statement.executeUpdate() <= 0) {
-                return null;
-            }
-
-            ResultSet response = statement.getGeneratedKeys();
-            if (response.next()) {
-                Integer id = response.getInt(1);
-                promo.setId(id);
-
-                return promo;
-            }
-        } catch (SQLException ex) {
-            return null;
+        int generatedId = Repository.super.executeUpdate(query, this::mapToStatementFields, promo);
+        if (generatedId > 0) {
+            promo.setId(generatedId);
+            return promo;
         }
 
         return null;
@@ -121,51 +69,46 @@ public class PromoRepository implements Repository<Promo> {
 
     @Override
     public Promo update(Promo promo) {
-        String query = "UPDATE promo SET promo_code=?, percent_discount=?," +
-                " duration_end=?, single_use=?, is_used=? WHERE id=?";
-        try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
-            statementSetFields(statement, promo);
-            statement.setInt(6, promo.getId());
-
-            if (statement.executeUpdate() <= 0) {
-                return null;
-            }
-
+        String query = String.format("UPDATE promo SET promo_code=?, percent_discount=?," +
+                " duration_end=?, single_use=?, is_used=? WHERE id=%d", promo.getId());
+        int generatedId = Repository.super.executeUpdate(query, this::mapToStatementFields, promo);
+        if (generatedId > 0) {
+            promo.setId(generatedId);
             return promo;
-        } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
-            return null;
         }
+
+        return null;
     }
 
     @Override
-    public void deleteById(Integer id, String object) {
-        Repository.super.deleteById(id, object);
+    public void deleteById(Integer id) {
+        String query = "DELETE FROM promo WHERE id=?";
+        int generatedId = Repository.super.executeDelete(query, id);
+
+        if (generatedId < 0) {
+            System.out.print("Error occurred while performing delete");
+        }
     }
 
     public void deletePromoTicketRelations(Integer promoId) {
-        try (PreparedStatement statement = DBUtil.getConnection().prepareStatement(
-                "DELETE FROM promo_ticket WHERE promo_id=?"
-        )) {
-            statement.setInt(1, promoId);
-            if (statement.executeUpdate() < 0) {
-                System.out.printf("Error occurred while deleting relation with promo id: %d", promoId);
-            }
-        } catch (SQLException ex) {
-            System.out.printf("Error occurred while deleting relation with promo id: %d", promoId);
+        String query = "DELETE FROM promo_ticket WHERE promo_id=?";
+        int generatedId = Repository.super.executeDelete(query, promoId);
+
+        if (generatedId < 0) {
+            System.out.printf("Error occurred while deleting ticket with promo id: %d", promoId);
         }
     }
 
 
 
-    private Promo responseGetFields(ResultSet response) {
+    private Promo mapToResultSet(ResultSet resultSet) {
         try {
-            Integer id = response.getInt("id");
-            String promoCode = response.getString("promo_code");
-            Integer percentDiscount = response.getInt("percent_discount");
-            LocalDate durationEnd = response.getDate("duration_end").toLocalDate();
-            Boolean singleUse = response.getBoolean("single_use");
-            Boolean isUsed = response.getBoolean("is_used");
+            Integer id = resultSet.getInt("id");
+            String promoCode = resultSet.getString("promo_code");
+            Integer percentDiscount = resultSet.getInt("percent_discount");
+            LocalDate durationEnd = resultSet.getDate("duration_end").toLocalDate();
+            Boolean singleUse = resultSet.getBoolean("single_use");
+            Boolean isUsed = resultSet.getBoolean("is_used");
 
             return new Promo(id, promoCode, percentDiscount, durationEnd, singleUse, isUsed);
         } catch (SQLException ex) {
@@ -174,7 +117,7 @@ public class PromoRepository implements Repository<Promo> {
     }
 
 
-    private void statementSetFields(PreparedStatement statement, Promo promo) {
+    private void mapToStatementFields(PreparedStatement statement, Promo promo) {
         try {
             statement.setString(1, promo.getPromoCode());
             statement.setInt(2, promo.getPercentDiscount());
@@ -183,6 +126,20 @@ public class PromoRepository implements Repository<Promo> {
             statement.setBoolean(5, promo.getUsed());
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
+        }
+    }
+
+    private List<Promo> mapToPromoList(ResultSet resultSet) {
+        try {
+            List<Promo> promos = new ArrayList<>();
+            while (resultSet.next()) {
+                Promo promo = mapToResultSet(resultSet);
+                promos.add(promo);
+            }
+            return promos;
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+            return null;
         }
     }
  }

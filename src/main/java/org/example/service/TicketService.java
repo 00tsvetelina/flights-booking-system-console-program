@@ -147,7 +147,7 @@ public class TicketService implements Service<Ticket> {
             con.setAutoCommit(false);
 
             ticketRepository.deleteTicketPromoRelations(id);
-            ticketRepository.deleteById(id, "ticket");
+            ticketRepository.deleteById(id);
             con.commit();
 
             return String.format("Ticket with id: %d successfully deleted!", id);

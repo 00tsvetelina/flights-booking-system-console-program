@@ -106,7 +106,7 @@ public class FlightService implements Service<Flight> {
             con.setAutoCommit(false);
 
             ticketRepository.deleteTicketByFlightId(id);
-            flightRepository.deleteById(id, "flight");
+            flightRepository.deleteById(id);
             con.commit();
 
             return String.format("Flight with id: %d successfully deleted!", id);

@@ -6,7 +6,6 @@ import org.example.utils.DBUtil;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,43 +14,14 @@ public class UserRepository implements Repository<User> {
     @Override
     public List<User> getAll() {
         String query =  "SELECT * FROM user";
-        try (PreparedStatement statement = DBUtil.getStatement(query, 0)){
-            ResultSet response = statement.executeQuery();
-            if (response == null) {
-                return null;
-            }
-
-            List<User> users = new ArrayList<>();
-            while (response.next()) {
-                User user = responseGetFields(response);
-                users.add(user);
-            }
-
-            return users;
-        } catch (SQLException ex) {
-            return null;
-        }
+        return Repository.super.executeQuery(query, this::mapToUserList);
     }
 
     @Override
     public User getById(Integer id) {
-        String query = "SELECT * FROM user WHERE id=?";
-        try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
-            statement.setInt(1, id);
-            ResultSet response = statement.executeQuery();
-            if (response == null) {
-                return null;
-            }
+        String query = String.format("SELECT * FROM user WHERE id=%d", id);
+        return Repository.super.executeQuery(query, this::mapToUserList).get(0);
 
-            if (response.next()) {
-                return responseGetFields(response);
-            }
-
-        } catch (SQLException ex) {
-            return null;
-        }
-
-        return null;
     }
 
     public User getUserByUserName(String userName) {
@@ -64,7 +34,7 @@ public class UserRepository implements Repository<User> {
             }
 
             if (response.next()) {
-                return responseGetFields(response);
+                return mapToResultSet(response);
             }
         } catch (SQLException ex) {
             return null;
@@ -83,7 +53,7 @@ public class UserRepository implements Repository<User> {
             }
 
             if (response.next()) {
-                return responseGetFields(response);
+                return mapToResultSet(response);
             }
         } catch (SQLException ex) {
             return null;
@@ -113,21 +83,10 @@ public class UserRepository implements Repository<User> {
     @Override
     public User create(User user) {
         String query = "INSERT INTO user(user_name, email, password, is_enabled, role) VALUES (?,?,?,?,?)";
-        try (PreparedStatement statement = DBUtil.getStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            statementSetFields(statement, user);
-            if (statement.executeUpdate() <= 0){
-                return null;
-            }
-
-            ResultSet response = statement.getGeneratedKeys();
-            if (response.next()) {
-                Integer id =  response.getInt(1);
-                user.setId(id);
-
-                return user;
-            }
-        } catch (SQLException ex) {
-            return null;
+        int generatedId = Repository.super.executeUpdate(query, this::mapToStatementFields, user);
+        if (generatedId > 0) {
+            user.setId(generatedId);
+            return user;
         }
 
         return null;
@@ -149,7 +108,7 @@ public class UserRepository implements Repository<User> {
             }
 
             if (response.next()) {
-                return responseGetFields(response);
+                return mapToResultSet(response);
             }
         } catch (SQLException ex) {
             return null;
@@ -173,30 +132,32 @@ public class UserRepository implements Repository<User> {
     }
 
     @Override
-    public void deleteById(Integer id, String object) {
-        Repository.super.deleteById(id, object);
+    public void deleteById(Integer id) {
+        String query = "DELETE FROM user WHERE id=?";
+        int generatedId = Repository.super.executeDelete(query, id);
+
+        if (generatedId < 0) {
+            System.out.print("Error occurred while performing delete");
+        }
     }
 
     public void deleteTicketsByUserId(Integer id){
         String query = "DELETE FROM ticket WHERE user_id=?";
-        try (PreparedStatement statement = DBUtil.getStatement(query, 0)) {
-            statement.setInt(1, id);
-            if (statement.executeUpdate() < 0) {
-                System.out.printf("Error while deleting ticket with user id: %d", id);
-            }
-        } catch (SQLException ex) {
+        int generatedId = Repository.super.executeDelete(query, id);
+
+        if (generatedId < 0) {
             System.out.printf("Error occurred while deleting ticket with user id: %d", id);
         }
     }
 
-    public User responseGetFields(ResultSet response) {
+    public User mapToResultSet(ResultSet resultSet) {
         try {
-            Integer id = response.getInt("id");
-            String userName = response.getString("user_name");
-            String email = response.getString("email");
-            String encryptedPassword = response.getString("password");
-            Boolean isEnabled = response.getBoolean("is_enabled");
-            String role = response.getString("role");
+            Integer id = resultSet.getInt("id");
+            String userName = resultSet.getString("user_name");
+            String email = resultSet.getString("email");
+            String encryptedPassword = resultSet.getString("password");
+            Boolean isEnabled = resultSet.getBoolean("is_enabled");
+            String role = resultSet.getString("role");
 
             return new User(id, userName, email, encryptedPassword, isEnabled, role);
         } catch (SQLException ex) {
@@ -204,7 +165,7 @@ public class UserRepository implements Repository<User> {
         }
     }
 
-    private void statementSetFields(PreparedStatement statement, User user) {
+    private void mapToStatementFields(PreparedStatement statement, User user) {
         try {
             statement.setString(1, user.getUserName());
             statement.setString(2, user.getEmail());
@@ -213,6 +174,20 @@ public class UserRepository implements Repository<User> {
             statement.setString(5, user.getRole());
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
+        }
+    }
+
+    private List<User> mapToUserList(ResultSet resultSet) {
+        try {
+            List<User> users = new ArrayList<>();
+            while (resultSet.next()) {
+                User user = mapToResultSet(resultSet);
+                users.add(user);
+            }
+            return users;
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+            return null;
         }
     }
 
