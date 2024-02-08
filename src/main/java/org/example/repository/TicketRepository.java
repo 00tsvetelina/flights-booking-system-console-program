@@ -4,12 +4,10 @@ import org.example.model.Flight;
 import org.example.model.Promo;
 import org.example.model.Ticket;
 import org.example.model.User;
-import org.example.utils.DBUtil;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,15 +29,15 @@ public class TicketRepository implements Repository<Ticket> {
     @Override
     public Ticket getById(Integer id) {
         String query = String.format("SELECT * FROM ticket WHERE id=%d", id);
-        return Repository.super.executeQuery(query, this::mapToTicketList).get(0);
+        return Repository.super.executeQuery(query, this::mapToTicket);
     }
 
     @Override
     public Ticket create(Ticket ticket) {
         String query = "INSERT INTO ticket(flight_id, user_id, seat) VALUES (?,?,?)";
-        int generatedId = Repository.super.executeUpdate(query, this::mapToStatementFields, ticket);
-        if (generatedId > 0) {
-            ticket.setId(generatedId);
+        int result = Repository.super.executeUpdate(query, this::mapToStatementFields, ticket);
+        if (result > 0) {
+            ticket.setId(result);
             return ticket;
         }
 
@@ -53,59 +51,50 @@ public class TicketRepository implements Repository<Ticket> {
 
     @Override
     public void deleteById(Integer id) {
-        String query = "DELETE FROM ticket WHERE id=?";
-        int generatedId = Repository.super.executeDelete(query, id);
+        String query = String.format("DELETE FROM ticket WHERE id=%d", id);
+        int result = Repository.super.executeDelete(query);
 
-        if (generatedId < 0) {
+        if (result < 0) {
             System.out.print("Error occurred while performing delete");
         }
     }
 
     public void deleteTicketByFlightId(Integer id) {
-        String query = "DELETE FROM ticket WHERE flight_id=?";
-        int generatedId = Repository.super.executeDelete(query, id);
+        String query = String.format("DELETE FROM ticket WHERE flight_id=%d", id);
+        int result = Repository.super.executeDelete(query);
 
-        if (generatedId < 0) {
+        if (result < 0) {
             System.out.printf("Error occurred while deleting ticket with flight id: %d", id);
         }
      }
 
     public void createTicketPromoRelations(Ticket ticket) {
         for (Promo promo : ticket.getPromos()) {
-            String query = "INSERT INTO promo_ticket(ticket_id, promo_id) VALUES (?,?)";
-            try (PreparedStatement statement = DBUtil.getStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-                statement.setInt(1, ticket.getId());
-                statement.setInt(2, promo.getId());
+            String query = String.format(
+                    "INSERT INTO promo_ticket(ticket_id, promo_id) VALUES (%d, %d)", ticket.getId(), promo.getId()
+            );
 
-                if (statement.executeUpdate() <= 0) {
-                    System.out.println("Error occurred while executing the statement");
-                }
-
-                ResultSet response = statement.getGeneratedKeys();
-                if (response.next()) {
-                    Integer id = response.getInt(1);
-                    ticket.setId(id);
-
-                    System.out.println("Promo successfully applied on ticket");
-                }
-
-            } catch (SQLException ex) {
-                System.out.println(ex.getMessage());
-            }
+            Repository.super.executeUpdate(query, this::mapToTicketPromoRelationsStatement, ticket);
+            System.out.println("Promo successfully applied on ticket");
         }
     }
 
-     public void deleteTicketPromoRelations(Integer ticketId) {
-         String query = "DELETE FROM promo_ticket WHERE ticket_id=?";
-         int generatedId = Repository.super.executeDelete(query, ticketId);
+    private void mapToTicketPromoRelationsStatement(PreparedStatement statement, Ticket ticket) {}
 
-         if (generatedId < 0) {
+    public void deleteTicketPromoRelations(Integer ticketId) {
+         String query = String.format("DELETE FROM promo_ticket WHERE ticket_id=%d", ticketId);
+         int result = Repository.super.executeDelete(query);
+
+         if (result < 0) {
              System.out.printf("Error occurred while deleting relation with ticket id: %d", ticketId);
          }
-     }
+    }
 
-    private Ticket mapToResultSet(ResultSet resultSet) {
+    private Ticket mapToTicket(ResultSet resultSet) {
         try {
+            if (!resultSet.next()) {
+                return null;
+            }
             Integer id = resultSet.getInt("id");
             Integer flightId = resultSet.getInt("flight_id");
             Integer userId = resultSet.getInt("user_id");
@@ -128,16 +117,14 @@ public class TicketRepository implements Repository<Ticket> {
     }
 
     private List<Ticket> mapToTicketList(ResultSet resultSet) {
-        try {
-            List<Ticket> tickets = new ArrayList<>();
-            while (resultSet.next()) {
-                Ticket ticket = mapToResultSet(resultSet);
-                tickets.add(ticket);
+        List<Ticket> tickets = new ArrayList<>();
+        while (true) {
+            Ticket ticket = mapToTicket(resultSet);
+            if (ticket == null) {
+                break;
             }
-            return tickets;
-        } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
-            return null;
+            tickets.add(ticket);
         }
+        return tickets;
     }
 }

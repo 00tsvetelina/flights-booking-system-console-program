@@ -21,15 +21,15 @@ public class PlaneRepository implements Repository<Plane> {
     @Override
     public Plane getById(Integer id) {
         String query = String.format("SELECT * FROM plane WHERE id=%d", id);
-        return Repository.super.executeQuery(query, this::mapToPlaneList).get(0);
+        return Repository.super.executeQuery(query, this::mapToPlane);
     }
 
     @Override
     public Plane create(Plane plane) {
         String query = "INSERT INTO plane(model, seats_count) VALUES(?,?)";
-        int generatedId = Repository.super.executeUpdate(query, this::mapToStatementFields, plane);
-        if (generatedId > 0) {
-            plane.setId(generatedId);
+        int result = Repository.super.executeUpdate(query, this::mapToStatementFields, plane);
+        if (result > 0) {
+            plane.setId(result);
             return plane;
         }
 
@@ -40,9 +40,8 @@ public class PlaneRepository implements Repository<Plane> {
     @Override
     public Plane update(Plane plane) {
         String query = String.format("UPDATE plane SET model=?, seats_count=? WHERE id=%d", plane.getId());
-        int generatedId = Repository.super.executeUpdate(query, this::mapToStatementFields, plane);
-        if (generatedId > 0) {
-            plane.setId(generatedId);
+        int result = Repository.super.executeUpdate(query, this::mapToStatementFields, plane);
+        if (result > 0) {
             return plane;
         }
 
@@ -51,16 +50,20 @@ public class PlaneRepository implements Repository<Plane> {
 
     @Override
     public void deleteById(Integer id) {
-        String query = "DELETE FROM plane WHERE id=?";
-        int generatedId = Repository.super.executeDelete(query, id);
+        String query = String.format("DELETE FROM plane WHERE id=%d", id);
+        int result = Repository.super.executeDelete(query);
 
-        if (generatedId < 0) {
+        if (result < 0) {
             System.out.print("Error occurred while performing delete");
         }
     }
 
-    private Plane mapToResultSet(ResultSet resultSet) {
+    private Plane mapToPlane(ResultSet resultSet) {
         try {
+            if (!resultSet.next()) {
+                return null;
+            }
+
             Integer id = resultSet.getInt("id");
             String model = resultSet.getString("model");
             Integer seatsCount = resultSet.getInt("seats_count");
@@ -81,16 +84,14 @@ public class PlaneRepository implements Repository<Plane> {
     }
 
     private List<Plane> mapToPlaneList(ResultSet resultSet) {
-        try {
             List<Plane> planes = new ArrayList<>();
-            while (resultSet.next()) {
-                Plane plane = mapToResultSet(resultSet);
+            while (true) {
+                Plane plane = mapToPlane(resultSet);
+                if (plane == null) {
+                    break;
+                }
                 planes.add(plane);
             }
             return planes;
-        } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
-            return null;
-        }
     }
 }

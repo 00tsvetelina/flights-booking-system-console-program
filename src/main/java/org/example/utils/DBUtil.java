@@ -2,7 +2,6 @@ package org.example.utils;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public final class DBUtil {
@@ -23,15 +22,8 @@ public final class DBUtil {
             } catch (SQLException e) {
                 System.out.println("Problem with closing the established connection has occurred" + e.getMessage());;
             }
-//            System.exit(0);
         }
-
         return instance;
-    }
-
-
-    public static PreparedStatement getStatement(String query, int keys) throws SQLException {
-        return getConnection().prepareStatement(query, keys);
     }
 }
 

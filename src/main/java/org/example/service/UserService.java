@@ -52,12 +52,9 @@ public class UserService implements Service<User> {
 
     @Override
     public String create(User user) {
-        String validationError = validateUser(user);
-        if (validationError != null) {
-            return validationError;
-        }
 
         user = userRepository.create(user);
+
         if (user == null) {
             return  "Registration process failed, please try again!";
         }
